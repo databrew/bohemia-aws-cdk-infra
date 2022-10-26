@@ -3,7 +3,7 @@ name: Deploy AWS CDK to DEV
 on:
   push:
     branches:
-      - uat
+      - dev-uat
   workflow_dispatch:
 
 jobs:
