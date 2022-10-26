@@ -18,7 +18,8 @@ class FargateStack(Construct):
         dockerhub_image=None, 
         execution_role=None, 
         family=None,
-        environment=None):
+        environment=None,
+        cron_expr=None):
 
         super().__init__(scope, id)
         # # add task definition
@@ -44,6 +45,6 @@ class FargateStack(Construct):
             desired_task_count= 1, 
             cluster=cluster,
             scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(task_definition = task_definition),
-            schedule=appscaling.Schedule.expression("rate(1 day)"),
+            schedule=appscaling.Schedule.expression(cron_expr),
             platform_version=ecs.FargatePlatformVersion.LATEST
         )

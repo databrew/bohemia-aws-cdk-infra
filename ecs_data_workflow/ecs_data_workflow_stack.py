@@ -51,26 +51,28 @@ class EcsDataWorkflowStack(Stack):
 
         odk_extraction_fargate_stack = FargateStack(
             self, 
-            'CreateDataExtractionFargateStack',
+            'dextract1',
             cluster=cluster,
             dockerhub_image="aryton/databrew-wf-data-extraction",
             execution_role=execution_role,
-            family="data-extraction",
+            family="data-extraction-one-day",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')}
+                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
+            cron_expr="rate(1 day)"
         )
 
         odk_extraction_fargate_stack_test = FargateStack(
             self, 
-            'CreateDataExtractionFargateStackTest',
+            'dextract2',
             cluster=cluster,
             dockerhub_image="aryton/databrew-wf-data-extraction",
             execution_role=execution_role,
-            family="data-extraction-extra",
+            family="data-extraction-five-days",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')}
+                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
+            cron_expr="rate(5 days)"
         )
 
         # # add task definition
