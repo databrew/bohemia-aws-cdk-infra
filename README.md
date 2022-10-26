@@ -3,7 +3,7 @@
 
 Author: Aryton Tediarjo (atediarjo@gmail.com)
 
-Reviewer: Joe Brew
+Reviewer: Joe Brew (joe@databrew.cc)
 
 ## About
 This repository is used for creating ECS Data Workflows for DataBrew Projects. 
