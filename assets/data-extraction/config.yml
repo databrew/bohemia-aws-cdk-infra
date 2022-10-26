@@ -1,0 +1,5 @@
+default:
+  odk_endpoint: 'https://atediarjo.com'
+  bucket_folder: "data-extraction"
+  odk_project_name: 'test-project'
+  bucket_name: 'bohemia2022-aryton'
