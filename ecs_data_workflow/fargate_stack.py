@@ -16,7 +16,7 @@ class FargateStack(Construct):
         id: str, *, 
         cluster=None, 
         dockerhub_image=None, 
-        execution_role=None, 
+        ecs_role=None, 
         family=None,
         environment=None,
         cron_expr=None):
@@ -26,8 +26,8 @@ class FargateStack(Construct):
         task_definition = ecs.FargateTaskDefinition(
             self, 
             "create-task-definition", 
-            execution_role=execution_role, 
-            task_role=execution_role,
+            execution_role=ecs_role, 
+            task_role=ecs_role,
             family=family
         )
 
