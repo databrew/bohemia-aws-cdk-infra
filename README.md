@@ -18,7 +18,7 @@ This Github repository uses AWS CDK as IaC tooling to automatically provision AW
 
 To start, clone this repository
 ```bash
-git clone this repo
+git clone https://github.com/arytontediarjo/ecs-data-workflow.git
 ```
 
 Based on two types of users:
