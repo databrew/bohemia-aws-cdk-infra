@@ -3,6 +3,8 @@
 
 This instruction is dedicated to interested Databrew Data Users who would like their workflow automated by our AWS Workflow. Under this asset directory, each folders represents microservices (Docker container) being deployed to the AWS ECS Cluster. One folder represents one container that is part of the ECS Cluster. 
 
+
+
 ## Getting Started
 [Install Docker Desktop on Local Computer](https://docs.docker.com/desktop/)
 
@@ -56,3 +58,6 @@ Two checklist before pushing to UAT branch:
 2. **Pushed your Docker Image to DockerHub**
 
 Once done, create a Git pull request to UAT branch where DevOps will be reviewing/validated your requests and see whether new instances or additional workflow is needed. 
+
+## Docker Index
+Refer to this Google Sheets (WILL BE ADDED) for all indexed and reviewed DataBrew Dockerhub Images
