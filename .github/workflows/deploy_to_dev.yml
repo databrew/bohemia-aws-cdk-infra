@@ -6,7 +6,6 @@ on:
       - uat
   workflow_dispatch:
 
-
 jobs:
   aws_cdk_uat:
     runs-on: ubuntu-latest
