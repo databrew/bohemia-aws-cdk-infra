@@ -1,5 +1,5 @@
-from constructs import Construct
 import os
+from constructs import Construct
 from aws_cdk import (
     # Duration,
     Stack,
@@ -16,7 +16,7 @@ class FargateStack(Construct):
         id: str, *, 
         cluster=None, 
         dockerhub_image=None, 
-        execution_role=None, 
+        ecs_role=None, 
         family=None,
         environment=None,
         cron_expr=None):
@@ -26,8 +26,8 @@ class FargateStack(Construct):
         task_definition = ecs.FargateTaskDefinition(
             self, 
             "create-task-definition", 
-            execution_role=execution_role, 
-            task_role=execution_role,
+            execution_role=ecs_role, 
+            task_role=ecs_role,
             family=family
         )
 
@@ -41,10 +41,13 @@ class FargateStack(Construct):
 
         # schedule in Fargate
         data_extraction_scheduled_task = ecs_patterns.ScheduledFargateTask(  
-            self, "",
+            self, "_scheduled_",
             desired_task_count= 1, 
             cluster=cluster,
-            scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(task_definition = task_definition),
+            scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(
+                task_definition = task_definition,
+                
+            ),
             schedule=appscaling.Schedule.expression(cron_expr),
             platform_version=ecs.FargatePlatformVersion.LATEST
         )

@@ -8,7 +8,6 @@ from aws_cdk import (
     aws_iam as iam,
 )
 from constructs import Construct
-
 from ecs_data_workflow.fargate_stack import FargateStack
 
 class EcsDataWorkflowStack(Stack):
@@ -28,13 +27,13 @@ class EcsDataWorkflowStack(Stack):
         )
         
         # create execution role
-        execution_role = iam.Role(
-            self, "ecs-devops-execution-role", 
+        ecs_role = iam.Role(
+            self, "createExecRole", 
             assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"), 
-            role_name="ecs-devops-execution-role")
+            role_name="databrew-ecs-workflow-role")
 
         # add to policy
-        execution_role.add_to_policy(
+        ecs_role.add_to_policy(
             iam.PolicyStatement(
                 effect=iam.Effect.ALLOW, 
                 resources=["*"], 
@@ -54,7 +53,7 @@ class EcsDataWorkflowStack(Stack):
             'dextract1',
             cluster=cluster,
             dockerhub_image="aryton/databrew-wf-data-extraction",
-            execution_role=execution_role,
+            ecs_role=ecs_role,
             family="data-extraction-one-day",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
@@ -67,7 +66,7 @@ class EcsDataWorkflowStack(Stack):
             'dextract2',
             cluster=cluster,
             dockerhub_image="aryton/databrew-wf-data-extraction",
-            execution_role=execution_role,
+            ecs_role=ecs_role,
             family="data-extraction-five-days",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
