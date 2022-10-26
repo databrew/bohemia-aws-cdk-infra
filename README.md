@@ -1,5 +1,6 @@
 
 # DataBrew ECS Data Workflow
+![example workflow](https://github.com/arytontediarjo/ecs-data-workflow/actions/workflows/deploy_to_prod.yml/badge.svg)  ![issues](https://img.shields.io/github/issues/arytontediarjo/ecs-data-workflow)
 
 Author: Aryton Tediarjo (atediarjo@gmail.com)
 
@@ -35,9 +36,9 @@ Based on two types of users:
 
 4. Push Docker Image to DataBrew Dockerhub
 
-5. Create PR to **uat-dev** branch and assign to atediarjo@gmail.com and joe@databrew.cc
+5. Create PR to **dev-uat** branch and assign to atediarjo@gmail.com and joe@databrew.cc
 
-6. For every Docker Images published in Dockerhub, append this function to ecs_data_workflow/ecs_data_workflow_stack.py to add microservice container to the ECS cluster.
+6. For every Docker Images published in Dockerhub, append this function to [ecs_data_workflow_stack](https://github.com/arytontediarjo/ecs-data-workflow/blob/main/ecs_data_workflow/ecs_data_workflow_stack.py) to add microservice container to the ECS cluster.
 
 ```python
 odk_extraction_fargate_stack_test = FargateStack(
@@ -61,6 +62,16 @@ odk_extraction_fargate_stack_test = FargateStack(
 2. Merge PR to uat-dev branch for doing testing
 
 3. TODO: create UAT checklist
+
+## Feature Request
+Trello?
+
+## Future Implementations
+- How to add container dependencies (order of execution of each container)
+- Streamline new container indexing
+- Create test cases
+
+
 
 
 

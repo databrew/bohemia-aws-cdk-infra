@@ -51,6 +51,10 @@ class EcsDataWorkflowStack(Stack):
                     "secretsmanager:*"
                     ] ))
 
+        # this is the section where you append each 
+        # scheduled microservices to ECS
+
+        # sample 1: create fargate stack with 1 day schedule
         odk_extraction_fargate_stack = FargateStack(
             self, 
             'dextract1',
@@ -64,6 +68,7 @@ class EcsDataWorkflowStack(Stack):
             cron_expr="rate(1 day)"
         )
 
+        # sample 2: create fargate stack with 5 days schedule
         odk_extraction_fargate_stack_test = FargateStack(
             self, 
             'dextract2',
