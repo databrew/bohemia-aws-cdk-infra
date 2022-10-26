@@ -1,3 +1,9 @@
+# Description: 
+# - This script is used for extracting data from ODK Postgres and save it to 
+# DataBrew S3 bucket
+#
+# Author: Aryton Tediarjo (atediarjo@gmail.com)
+
 library(ruODK)
 library(dplyr)
 library(lubridate)

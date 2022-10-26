@@ -1,0 +1,36 @@
+name: Deploy AWS CDK to PROD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  aws_cdk_prod:
+    runs-on: ubuntu-latest
+    env: 
+      CDK_DEFAULT_ACCOUNT: "939927276846"
+      CDK_DEFAULT_REGION: "us-east-1"
+      ODK_CREDENTIALS_SECRETS_NAME: "prod/odk-credentials"
+      BUCKET_PREFIX: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: install npm
+        run: 'sudo apt update -y && sudo apt install nodejs npm -y'
+      - name: Install AWS CDK
+        run: 'sudo npm install -g aws-cdk'
+      - name: Install Requirements 
+        run: 'pip3 install -r requirements.txt'
+      - name: CDK Synth
+        run: cdk synth
+      - name: CDK Deploy
+        run: cdk deploy --require-approval never

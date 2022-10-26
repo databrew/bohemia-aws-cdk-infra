@@ -1,3 +1,9 @@
+# Description: 
+# - This script is used for creating credentials to instantiate bohemiase
+# - It creates bohemia credentials and save it into dot file stored in $HOME directory
+#
+# Author: Aryton Tediarjo (atediarjo@gmail.com)
+
 library(yaml)
 library(paws)
 library(magrittr)
