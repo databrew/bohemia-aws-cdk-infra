@@ -41,10 +41,13 @@ class FargateStack(Construct):
 
         # schedule in Fargate
         data_extraction_scheduled_task = ecs_patterns.ScheduledFargateTask(  
-            self, "",
+            self, "_scheduled_",
             desired_task_count= 1, 
             cluster=cluster,
-            scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(task_definition = task_definition),
+            scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(
+                task_definition = task_definition,
+                
+            ),
             schedule=appscaling.Schedule.expression(cron_expr),
             platform_version=ecs.FargatePlatformVersion.LATEST
         )
