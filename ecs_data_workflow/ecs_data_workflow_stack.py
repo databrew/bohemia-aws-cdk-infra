@@ -63,7 +63,7 @@ class EcsDataWorkflowStack(Stack):
 
         odk_extraction_fargate_stack_test = FargateStack(
             self, 
-            'CreateDataExtractionFargateStack',
+            'CreateDataExtractionFargateStackTest',
             cluster=cluster,
             dockerhub_image="aryton/databrew-wf-data-extraction",
             execution_role=execution_role,
