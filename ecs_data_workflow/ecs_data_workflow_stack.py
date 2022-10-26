@@ -61,6 +61,18 @@ class EcsDataWorkflowStack(Stack):
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')}
         )
 
+        odk_extraction_fargate_stack_test = FargateStack(
+            self, 
+            'CreateDataExtractionFargateStack',
+            cluster=cluster,
+            dockerhub_image="aryton/databrew-wf-data-extraction",
+            execution_role=execution_role,
+            family="data-extraction-extra",
+            environment={
+                "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
+                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')}
+        )
+
         # # add task definition
         # task_definition = ecs.FargateTaskDefinition(
         #     self, "data-extraction-task-definition", 
