@@ -1,5 +1,5 @@
-from constructs import Construct
 import os
+from constructs import Construct
 from aws_cdk import (
     # Duration,
     Stack,
