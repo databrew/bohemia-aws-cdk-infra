@@ -54,7 +54,7 @@ class EcsDataWorkflowStack(Stack):
             'dextract1',
             cluster=cluster,
             dockerhub_image="aryton/databrew-wf-data-extraction",
-            execution_role=ecs_role,
+            ecs_role=ecs_role,
             family="data-extraction-one-day",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
