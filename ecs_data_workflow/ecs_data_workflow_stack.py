@@ -76,31 +76,3 @@ class EcsDataWorkflowStack(Stack):
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
             cron_expr="rate(5 days)"
         )
-
-        # # add task definition
-        # task_definition = ecs.FargateTaskDefinition(
-        #     self, "data-extraction-task-definition", 
-        #     execution_role=execution_role, 
-        #     task_role=execution_role,
-        #     family="data-extraction"
-        # )
-
-        # # Add container to task definition
-        # data_extraction_container = task_definition.add_container(
-        #     "task-extraction", 
-        #     image=ecs.ContainerImage.from_registry("aryton/databrew-wf-data-extraction"),
-        #     logging=ecs.LogDrivers.aws_logs(stream_prefix="databrew-wf"),
-        #     environment={
-        #         "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-        #         "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')}
-        # )
-
-        # # schedule in Fargate
-        # data_extraction_scheduled_task = ecs_patterns.ScheduledFargateTask(  
-        #     self, "createScheduledFargateTask",
-        #     desired_task_count= 1, 
-        #     cluster=cluster,
-        #     scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(task_definition = task_definition),
-        #     schedule=appscaling.Schedule.expression("rate(1 day)"),
-        #     platform_version=ecs.FargatePlatformVersion.LATEST
-        # )
