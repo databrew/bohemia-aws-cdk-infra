@@ -8,7 +8,6 @@ from aws_cdk import (
     aws_iam as iam,
 )
 from constructs import Construct
-
 from ecs_data_workflow.fargate_stack import FargateStack
 
 class EcsDataWorkflowStack(Stack):
