@@ -26,6 +26,7 @@ class FargateStack(Construct):
         task_definition = ecs.FargateTaskDefinition(
             self, 
             "create-task-definition", 
+            cpu=1,
             execution_role=ecs_role, 
             task_role=ecs_role,
             family=family
