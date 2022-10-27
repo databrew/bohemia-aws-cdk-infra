@@ -19,8 +19,8 @@ class EcsDataWorkflowStack(Stack):
         vpc = ec2.Vpc(
             self,
             "MyVpc", 
-            max_azs=3, 
-            nat_gateways=0, 
+            cidr="10.0.0.0/16",
+            nat_gateways=0,
             subnet_configuration=[{
                 'name': 'public-subnet-1',
                 'subnetType': ec2.SubnetType.PUBLIC,
