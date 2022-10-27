@@ -15,8 +15,16 @@ class EcsDataWorkflowStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-                # create vpc
-        vpc = ec2.Vpc(self, "MyVpc", max_azs=3)
+        # create vpc
+        vpc = ec2.Vpc(
+            self,
+            "MyVpc", 
+            nat_gateways=0,
+            subnet_configuration=[{
+                'name': 'public-subnet-1',
+                'subnetType': ec2.SubnetType.PUBLIC,
+                'cidrMask': 24}]
+        )
         
         # create cluster for ECS
         cluster = ecs.Cluster(

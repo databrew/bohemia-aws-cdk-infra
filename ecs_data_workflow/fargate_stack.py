@@ -36,7 +36,7 @@ class FargateStack(Construct):
             "task-extraction", 
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDrivers.aws_logs(stream_prefix="databrew-wf"),
-            environment=environment
+            environment=environment,
         )
 
         # schedule in Fargate
@@ -44,9 +44,9 @@ class FargateStack(Construct):
             self, "_scheduled_",
             desired_task_count= 1, 
             cluster=cluster,
+            subnet_selection=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             scheduled_fargate_task_definition_options=ecs_patterns.ScheduledFargateTaskDefinitionOptions(
                 task_definition = task_definition,
-                
             ),
             schedule=appscaling.Schedule.expression(cron_expr),
             platform_version=ecs.FargatePlatformVersion.LATEST
