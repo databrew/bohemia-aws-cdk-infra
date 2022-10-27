@@ -16,7 +16,7 @@ class EcsDataWorkflowStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         # create vpc
-        vpc = ec2.Vpc(self, "MyVpc", max_azs=1, nat_gateways=0)
+        vpc = ec2.Vpc(self, "MyVpc", max_azs=1, nat_gateways=1)
         
         # create cluster for ECS
         cluster = ecs.Cluster(
