@@ -7,8 +7,7 @@ docker_tests:
 	-e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
 	-e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
 	-e AWS_REGION='us-east-1' \
-	-e R_CONFIG_ACTIVE='test' \
-	data-extraction
+	extract-bohemia-kenya-project
 	
 # run data pipeline:
 # 1). do git pull to fetch updates

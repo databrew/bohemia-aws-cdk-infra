@@ -6,10 +6,10 @@ RUN apt-get update -y\
     && apt-get install -y git
 
 # clone github repository
-RUN git clone https://github.com/arytontediarjo/databrew-ecs-workflow.git /root/databrew-ecs-workflow
+RUN git clone https://github.com/arytontediarjo/ecs-data-workflow.git /root/ecs-data-workflow
 
 # use the bohemia kenya work directory
-WORKDIR /root/databrew-ecs-workflow/assets/data-extraction
+WORKDIR /root/ecs-data-workflow/assets/extract-bohemia-kenya-project
 
 # use renv to replicate
 ENV RENV_VERSION 0.16.0
