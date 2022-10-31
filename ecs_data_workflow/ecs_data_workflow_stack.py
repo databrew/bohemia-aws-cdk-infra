@@ -56,17 +56,23 @@ class EcsDataWorkflowStack(Stack):
                     "secretsmanager:*"
                     ] ))
 
-        # this is the section where you append each 
+        
+        #######################################
+        # This section where you append each 
         # scheduled microservices to ECS
-
+        # Everytime you add new stack, it will
+        # create new microservices to the cluster
+        #######################################
+        
+        # Bohemia Data Extraction being placed to 
         # sample 1: create fargate stack with 1 day schedule
         odk_extraction_fargate_stack = FargateStack(
             self, 
             'dextract1',
             cluster=cluster,
-            dockerhub_image="aryton/databrew-wf-data-extraction",
+            dockerhub_image="aryton/extract-bohemia-kenya-project",
             ecs_role=ecs_role,
-            family="data-extraction-one-day",
+            family="bohemia-data-extraction-one-day",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
@@ -78,9 +84,9 @@ class EcsDataWorkflowStack(Stack):
             self, 
             'dextract2',
             cluster=cluster,
-            dockerhub_image="aryton/databrew-wf-data-extraction",
+            dockerhub_image="aryton/extract-bohemia-kenya-project",
             ecs_role=ecs_role,
-            family="data-extraction-five-days",
+            family="bohemia-data-extraction-five-days",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},

@@ -7,68 +7,52 @@ Author: Aryton Tediarjo (atediarjo@gmail.com)
 Reviewer: Joe Brew (joe@databrew.cc)
 
 ## About
-This repository is used for creating ECS Data Workflows for DataBrew Projects. 
-It consists of two systems requirements:
-- [Installing AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/hello_world.html)
-- [Installing Docker](https://docs.docker.com/engine/install/)
+This repository is used for creating ECS Data Workflows, you will be required to install Python and AWS CDK to use this workflow:
+1. [Installing Python](https://www.python.org/downloads/)
+2. [Getting started with AWS CDK for Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
 
-This Github repository uses AWS CDK as IaC tooling to automatically provision AWS resources using code. The CDK will point towards a Docker Image in Dockerhub to create scheduled tasks for day to day use-cases. 
-
-## Workflow
+## Visualized Process
 ![My Image](images/ecs_wf_v0.jpeg)
+Check out our [terminology list](https://github.com/arytontediarjo/ecs-data-workflow/tree/main/docs/terminology.md) for more information
 
-To start, clone this repository
+## Step-by-step Guide:
+Before using this workflow, make sure that you have authenticated to AWS.
+
+ (TODO: add documentation link on how to be authenticated to AWS)
+
+### Clone Github Repository
 ```bash
 git clone https://github.com/arytontediarjo/ecs-data-workflow.git
 ```
-
-Based on two types of users:
-
-**Data Scientists / Analysts Workflows**: 
-
-1. Create a new git branch (don't name it **dev-uat** as it is used for provisioning to dev account)
-
-2. Create a new folder of the analysis or process inside the  **./assets** folder
-
-3. Create R Project based on the newly created folder
-
-4. Create Dockerfiles in each folder to help reproduce your analysis/script environment into the data workflow - more info in [Docker Assets Documentation](https://github.com/arytontediarjo/ecs-data-workflow/blob/main/assets/README.md)
-
-4. Push Docker Image to DataBrew Dockerhub
-
-5. Create PR to **dev-uat** branch and assign to atediarjo@gmail.com and joe@databrew.cc
-
-6. For every Docker Images published in Dockerhub, append this function to [ecs_data_workflow_stack](https://github.com/arytontediarjo/ecs-data-workflow/blob/main/ecs_data_workflow/ecs_data_workflow_stack.py) to add microservice container to the ECS cluster.
-
-```python
-odk_extraction_fargate_stack_test = FargateStack(
-            self, 
-            'dextract2',
-            cluster=cluster,  ## name of cluster DON'T CHANGE
-            dockerhub_image="aryton/databrew-wf-data-extraction", ## dockerhub image
-            ecs_role=ecs_role, ## name of role used for ECS execution
-            family="data-extraction-five-days", ## name of the task
-            environment={
-                "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')}, ## environment passed to ECS
-            cron_expr="rate(5 days)" ## cron job
-        )
+### Create new branch for your local development
+```bash
+git checkout -b [name_of_your_new_branch]
+git push origin [name_of_your_new_branch]
 ```
 
-**DevOPS**
+### Make changes to Source Code
 
-1. Review incoming PR from uat-dev from users
+There are several changes that can be made on the workflow, such as changing scheduling, services being used, memory limitations of each Docker/Microservices being deployed. 
 
-2. Merge PR to uat-dev branch for doing testing
+List of guidelines on contributing (To be added along the way):
+1. [Adding Microservices](https://github.com/arytontediarjo/ecs-data-workflow/tree/main/docs/add_microservice.md)
 
-3. TODO: create UAT checklist
+### Provision to AWS Test Account / Pre-Deployment
+1. After you push your changes to the new branch, create a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) towards the [dev_uat branch](https://github.com/arytontediarjo/ecs-data-workflow/tree/dev-uat). 
+2. We will do code-review process before merging to dev_uat. 
+3. Once code is reviewed, merge all the changes to dev_uat
+4. Github Action will pick up the recent push and automatically run all the required CDK commands (synth, deploy) to provision all the resources to Test Account (Insert Account Number)
+5. Team will be able review and to QA on the deployment in the Test Account
+
+### Provision to AWS Prod Account / Deployment
+Once deployment is tested in (Insert Account Number), create a PR to the [main branch](https://github.com/arytontediarjo/ecs-data-workflow/tree/main). We will do all final sanity checks before merging all the changes to the main branch (production branch)
 
 ## Feature Request
-Trello?
+Feature request will be done through team's Trello board
 
 ## Future Implementations
 - How to add container dependencies (order of execution of each container)
-- Streamline new container indexing
+- Streamline new image using config files
 - Create test cases
 
 
