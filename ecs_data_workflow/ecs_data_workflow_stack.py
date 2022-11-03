@@ -76,7 +76,7 @@ class EcsDataWorkflowStack(Stack):
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
-            cron_expr="cron(0 24 * * ? *)"
+            cron_expr="cron(59 23 * * ? *)"
         )
 
         # # sample 2: create fargate stack with 5 days schedule
