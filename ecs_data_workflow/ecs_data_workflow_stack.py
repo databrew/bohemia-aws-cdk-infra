@@ -70,25 +70,25 @@ class EcsDataWorkflowStack(Stack):
             self, 
             'dextract1',
             cluster=cluster,
-            dockerhub_image="aryton/extract-bohemia-kenya-project",
+            dockerhub_image="databrewllc/odk-form-extraction",
             ecs_role=ecs_role,
-            family="bohemia-data-extraction-one-day",
+            family="odk-form-extraction",
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
             cron_expr="rate(1 day)"
         )
 
-        # sample 2: create fargate stack with 5 days schedule
-        odk_extraction_fargate_stack_test = FargateStack(
-            self, 
-            'dextract2',
-            cluster=cluster,
-            dockerhub_image="aryton/extract-bohemia-kenya-project",
-            ecs_role=ecs_role,
-            family="bohemia-data-extraction-five-days",
-            environment={
-                "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
-            cron_expr="rate(5 days)"
-        )
+        # # sample 2: create fargate stack with 5 days schedule
+        # odk_extraction_fargate_stack_test = FargateStack(
+        #     self, 
+        #     'dextract2',
+        #     cluster=cluster,
+        #     dockerhub_image="aryton/extract-bohemia-kenya-project",
+        #     ecs_role=ecs_role,
+        #     family="bohemia-data-extraction-five-days",
+        #     environment={
+        #         "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
+        #         "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
+        #     cron_expr="rate(5 days)"
+        # )
