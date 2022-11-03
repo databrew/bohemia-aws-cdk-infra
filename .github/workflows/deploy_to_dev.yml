@@ -1,4 +1,4 @@
-name: Deploy AWS CDK to DEV
+name: Deploy AWS CDK to databrew dev account
 
 on:
   push:
