@@ -68,7 +68,7 @@ class EcsDataWorkflowStack(Stack):
         # sample 1: create fargate stack with 1 day schedule
         odk_extraction_fargate_stack = FargateStack(
             self, 
-            'dextract1',
+            'ODK-form-extraction',
             cluster=cluster,
             dockerhub_image="databrewllc/odk-form-extraction",
             ecs_role=ecs_role,
@@ -76,7 +76,7 @@ class EcsDataWorkflowStack(Stack):
             environment={
                 "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
                 "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
-            cron_expr="rate(1 day)"
+            cron_expr="cron(0 24 * * ? *)"
         )
 
         # # sample 2: create fargate stack with 5 days schedule
