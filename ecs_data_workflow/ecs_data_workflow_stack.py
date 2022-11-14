@@ -1,4 +1,5 @@
 import os
+import aws_cdk as cdk
 from aws_cdk import (
     # Duration,
     Stack,
@@ -6,9 +7,14 @@ from aws_cdk import (
     aws_ecs_patterns as ecs_patterns,
     aws_applicationautoscaling as appscaling,
     aws_iam as iam,
+    aws_stepfunctions_tasks as tasks,
+    aws_stepfunctions as sfn,
+    aws_events as events,
+    aws_events_targets as targets
 )
 from constructs import Construct
 from ecs_data_workflow.fargate_stack import FargateStack
+
 
 class EcsDataWorkflowStack(Stack):
 
@@ -18,77 +24,93 @@ class EcsDataWorkflowStack(Stack):
         # create vpc
         vpc = ec2.Vpc(
             self,
-            "MyVpc", 
+            "MyVpc",
             nat_gateways=0,
             subnet_configuration=[{
                 'name': 'public-subnet-1',
                 'subnetType': ec2.SubnetType.PUBLIC,
                 'cidrMask': 24}]
         )
-        
+
         # create cluster for ECS
         cluster = ecs.Cluster(
-            self, 
-            "CreateCluster", 
+            self,
+            "CreateCluster",
             vpc=vpc,
             cluster_name='databrew-data-workflow',
         )
-        
+
         # create execution role
         ecs_role = iam.Role(
-            self, "createExecRole", 
-            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"), 
+            self, "createExecRole",
+            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
             role_name="databrew-ecs-workflow-role")
 
         # add to policy
         ecs_role.add_to_policy(
             iam.PolicyStatement(
-                effect=iam.Effect.ALLOW, 
-                resources=["*"], 
+                effect=iam.Effect.ALLOW,
+                resources=["*"],
                 actions=[
-                    "ecr:GetAuthorizationToken", 
-                    "ecr:BatchCheckLayerAvailability", 
-                    "ecr:GetDownloadUrlForLayer", 
-                    "ecr:BatchGetImage", 
-                    "logs:CreateLogStream", 
+                    "ecr:GetAuthorizationToken",
+                    "ecr:BatchCheckLayerAvailability",
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:BatchGetImage",
+                    "logs:CreateLogStream",
                     "logs:PutLogEvents",
                     "s3:*",
                     "secretsmanager:*"
-                    ] ))
+                ]))
 
-        
         #######################################
-        # This section where you append each 
+        # This section where you append each
         # scheduled microservices to ECS
         # Everytime you add new stack, it will
         # create new microservices to the cluster
         #######################################
-        
-        # Bohemia Data Extraction being placed to 
-        # sample 1: create fargate stack with 1 day schedule
-        odk_extraction_fargate_stack = FargateStack(
-            self, 
-            'ODK-form-extraction',
-            cluster=cluster,
-            dockerhub_image="databrewllc/odk-form-extraction",
-            ecs_role=ecs_role,
-            family="odk-form-extraction",
-            environment={
-                "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-                "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
-            cron_expr="cron(59 23 * * ? *)"
+
+        task_definition = ecs.FargateTaskDefinition(
+            self,
+            "create-task-definition",
+            execution_role=ecs_role,
+            task_role=ecs_role,
+            family='odk-form-extraction'
         )
 
-        # # sample 2: create fargate stack with 5 days schedule
-        # odk_extraction_fargate_stack_test = FargateStack(
-        #     self, 
-        #     'dextract2',
-        #     cluster=cluster,
-        #     dockerhub_image="aryton/extract-bohemia-kenya-project",
-        #     ecs_role=ecs_role,
-        #     family="bohemia-data-extraction-five-days",
-        #     environment={
-        #         "BUCKET_PREFIX" : os.getenv('BUCKET_PREFIX'),
-        #         "ODK_CREDENTIALS_SECRETS_NAME": os.getenv('ODK_CREDENTIALS_SECRETS_NAME')},
-        #     cron_expr="rate(5 days)"
-        # )
+        dockerhub_image = 'databrewllc/odk-form-extraction'
+
+        # Add container to task definition
+        container_definition = task_definition.add_container(
+            "task-extraction",
+            image=ecs.ContainerImage.from_registry(dockerhub_image),
+            logging=ecs.LogDrivers.aws_logs(stream_prefix="databrew-wf")
+        )
+
+        form_extraction = tasks.EcsRunTask(    
+            self, "FormExtraction",
+            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+            cluster=cluster,
+            task_definition=task_definition,
+            assign_public_ip=True,
+            container_overrides=[
+                tasks.ContainerOverride(
+                    container_definition=container_definition,
+                    environment=[
+                        tasks.TaskEnvironmentVariable(name="BUCKET_PREFIX", value=os.getenv('BUCKET_PREFIX')),
+                        tasks.TaskEnvironmentVariable(name="ODK_CREDENTIALS_SECRETS_NAME", value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+            )],
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        )
+
+        # consolidate ecs into step function
+        state_machine = sfn.StateMachine(self, "EcsWorkflowStateMachine",
+                                         definition = form_extraction.next(
+                                            sfn.Succeed(self, "SuccessfulExtraction")))
+
+        # add event rule to step function to run code on scheduled intervals
+        scheduler = events.Rule(
+            self, "EcsWorkflowScheduler",
+            schedule=events.Schedule.expression("cron(59 23 * * ? *)"),
+            targets=[targets.SfnStateMachine(state_machine)]
+        )
+
