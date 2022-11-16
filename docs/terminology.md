@@ -1,5 +1,7 @@
 ## Terminology
 
+# Added terminology
+
 1. [**AWS CDK**](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html): Short for AWS Cloud Development Kit. This tool enables user to provision AWS resources in a form of code (Infrastructure as Code, IaC). It takes in scripts that are created by users and synthesizes it into a **CloudFormation Template** (think of it as a recipe for your application)
 
 2. [**CloudFormation Template**](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html): This is a yaml configuration file that is used to deploy all your resources in 1-click

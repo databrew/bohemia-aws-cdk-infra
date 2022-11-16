@@ -1,18 +1,17 @@
-name: Deploy AWS CDK to DEV
+name: Deploy AWS CDK to databrew dev account
 
 on:
   push:
     branches:
       - dev-uat
-  workflow_dispatch:
 
 jobs:
   aws_cdk_uat:
     runs-on: ubuntu-latest
     env: 
-      CDK_DEFAULT_ACCOUNT: "288225392817"
+      CDK_DEFAULT_ACCOUNT: "381386504386"
       CDK_DEFAULT_REGION: "us-east-1"
-      BUCKET_PREFIX: "databrew-test-"
+      BUCKET_PREFIX: "databrew-testing-"
       ODK_CREDENTIALS_SECRETS_NAME: "test/odk-credentials"
     steps:
       - name: Checkout
