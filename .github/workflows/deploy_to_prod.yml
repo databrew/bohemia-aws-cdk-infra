@@ -9,7 +9,7 @@ jobs:
   aws_cdk_prod:
     runs-on: ubuntu-latest
     env: 
-      CDK_DEFAULT_ACCOUNT: "939927276846"
+      CDK_DEFAULT_ACCOUNT: "354598940118"
       CDK_DEFAULT_REGION: "us-east-1"
       ODK_CREDENTIALS_SECRETS_NAME: "prod/odk-credentials"
       BUCKET_PREFIX: ""
