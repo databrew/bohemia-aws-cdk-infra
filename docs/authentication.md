@@ -13,7 +13,7 @@ Our team uses 2 AWS Accounts to isolate Development / Production Cycle:
 
 4. You will see this Landing Page once logged in
 
-![authentication](images/aws_org_lp.png)
+![authentication](/images/aws_org_lp.png)
 
 In the landing page you will be able to `Assume a Role` to AWS, meaning that you will get temporary access (1 hour) for visiting the console or using Access Key and Secret Keys for programmatic access.
 

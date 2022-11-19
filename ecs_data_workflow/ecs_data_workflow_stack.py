@@ -1,3 +1,13 @@
+# description: 
+# This CDK code is used to provision resources
+# to AWS. It will provision resources to 
+# run ECS orchestration using Step Functions
+# and an EventBridge Scheduler
+#
+# author: atediarjo@gmail.com
+# reviewer: joe@databrew.cc
+# createdOn: October, 25th 2022
+
 import os
 import aws_cdk as cdk
 from aws_cdk import (
@@ -13,7 +23,6 @@ from aws_cdk import (
     aws_events_targets as targets
 )
 from constructs import Construct
-from ecs_data_workflow.fargate_stack import FargateStack
 
 
 class EcsDataWorkflowStack(Stack):
@@ -68,7 +77,6 @@ class EcsDataWorkflowStack(Stack):
         # Everytime you add new stack, it will
         # create new microservices to the cluster
         #######################################
-
         task_definition = ecs.FargateTaskDefinition(
             self,
             "create-task-definition",
