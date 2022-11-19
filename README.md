@@ -6,21 +6,26 @@ Author: Aryton Tediarjo (atediarjo@gmail.com)
 
 Reviewer: Joe Brew (joe@databrew.cc)
 
-## About
-This repository is used for creating ECS Data Workflows, you will be required to install Python and AWS CDK to use this workflow:
-1. [Installing Python](https://www.python.org/downloads/)
-2. [Getting started with AWS CDK for Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
+## About:
+This repository is used for orchestrating Databrew data pipeline using AWS. This workflow utilizes Docker as that runs the each of the data stages from data collection, anomaly detection, data cleaning  and reporting to our business stakeholders. 
 
-## Visualized Process
+This workflow is made to remediate the current process of having one big AWS EC2 machine and change it to  a cheaper & scalabale alternative. 
+
+Our team is using AWS CDK to spin up alll the required component using code (Infrastructure as Code)
+## Documentation:
 ![My Image](images/ecs_wf_v0.jpeg)
 Check out our [terminology list](https://github.com/arytontediarjo/ecs-data-workflow/tree/main/docs/terminology.md) for more information
 
-## Step-by-step Guide:
+## Contributing Guidelines:
+### Prerequisites
+1. [Installing Python](https://www.python.org/downloads/)
+2. [Getting started with AWS CDK for Python](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
+
 Before using this workflow, make sure that you have authenticated to AWS.
 
  (TODO: add documentation link on how to be authenticated to AWS)
 
-### Clone Github Repository
+### Clone Repository
 ```bash
 git clone https://github.com/arytontediarjo/ecs-data-workflow.git
 ```
@@ -30,11 +35,9 @@ git checkout -b [name_of_your_new_branch]
 git push origin [name_of_your_new_branch]
 ```
 
-### Make changes to Source Code
+### Change Management
+ 
 
-There are several changes that can be made on the workflow, such as changing scheduling, services being used, memory limitations of each Docker/Microservices being deployed. 
-
-List of guidelines on contributing (To be added along the way):
 1. [Adding Microservices](https://github.com/arytontediarjo/ecs-data-workflow/tree/main/docs/add_microservice.md)
 
 ### Provision to AWS Test Account / Pre-Deployment
