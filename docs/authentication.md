@@ -9,16 +9,16 @@ Our team uses 2 AWS Accounts to isolate Development / Production Cycle:
 
 2. Once access is given, go to our team's AWS Organizations Landing Page [here](https://databrewllc.awsapps.com/start#/)
 
-3. Type in your login and temporary password, once logged reset your password
+3. Type in your login and temporary password, reset your password once logged in
 
-4. You will see this Landing Page once logged in
+4. Afterwards, you will see this Landing Page:
 
 ![authentication](/images/aws_org_lp.png)
 
-In the landing page you will be able to `Assume a Role` to AWS, meaning that you will get temporary access (1 hour) for visiting the console or using Access Key and Secret Keys for programmatic access.
+In the landing page you will be able to `Assume a Role` to AWS, meaning that you will get temporary access (1 hour) for visiting the console or using Access Key and Secret Keys for programmatic access. Clicking `management console` will give you access into console UI with restricted privilege from the role. 
 
 ## Programmatic Access for RStudio
-As we grow as a team, we would like our engineers and analyst to be able to have programmatic access to build dashboards or data reports. There are two ways you can be authenticated to our resources:
+For users to have programmatic access, there are two ways you can be authenticated to use our AWS resources:
 
 ### Option 1: Copy Paste Access Key to RStudio
 
@@ -65,4 +65,4 @@ library(paws)
 svc <- paws::s3()
 s3$list_buckets()
 ```
-It is highly recommended to use the R [`paws`](https://github.com/paws-r/paws) Library as it is actively supported by the AWS team with syntax similar to the AWS SDK
+It is highly recommended to use the R [`paws`](https://github.com/paws-r/paws) Library as it is actively supported by AWS

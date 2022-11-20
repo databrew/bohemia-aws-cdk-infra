@@ -1,8 +1,8 @@
 # Continuous Integration/Deployment
 
-This is documentation will covers CI/CD process of our infrastrucstre.
+This is documentation will cover the CI/CD process of the data infrastructure
 
-We are using 2 accounts in this process:
+2 accounts are being used in this process:
 - databrew-dev (Account No: 381386504386)
 - databrew-prod (Account No: 354598940118)
 
