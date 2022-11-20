@@ -9,18 +9,24 @@ Our team uses 2 AWS Accounts to isolate Development / Production Cycle:
 
 2. Once access is given, go to our team's AWS Organizations Landing Page [here](https://databrewllc.awsapps.com/start#/)
 
-3. Type in your login and temporary password, reset your password once logged in
+3. Type in your login and temporary password, once logged reset your password
 
-4. Afterwards, you will see this Landing Page:
+4. You will see this Landing Page once logged in
 
 ![authentication](/images/aws_org_lp.png)
 
-In the landing page you will be able to `Assume a Role` to AWS, meaning that you will get temporary access (1 hour) for visiting the console or using Access Key and Secret Keys for programmatic access. Clicking `management console` will give you access into console UI with restricted privilege from the role. 
+In the landing page you will be able to `Assume a Role` to AWS, meaning that you will get temporary access (1 hour) for visiting the console or using Access Key and Secret Keys for programmatic access.
 
 ## Programmatic Access for RStudio
-For users to have programmatic access, there are two ways you can be authenticated to use our AWS resources:
+We would like our data analysts to have programmatic access to access AWS data.
 
-### Option 1: Copy Paste Access Key to RStudio
+Install AWS-Supported Library for R:
+```r
+install.packages("paws")
+```
+
+There are two options to have access to our resources
+### Option 1: Copy Paste Access Key and Secret Access Key to RStudio Session
 
  `Click Command line or programmatic access` and you will see all the temporary keys in the option tab, copy paste it into your R Environment Variable. 
 ```r
@@ -32,11 +38,11 @@ Sys.setenv(
 )
 ```
 
-### Option 2: Amazon SSO (Recommended)
+### Option 2: Amazon SSO
 
-Copy pasted from [R paws documentation](https://github.com/paws-r/paws/blob/main/docs/credentials.md)
+To use this option, you will be required to have AWS CLI in your machine. Installation guide [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
-To use AWS SSO to provide credentials for accessing AWS, you will need to specify the SSO settings to use in the AWS config file, log in to SSO using the AWS CLI, then tell Paws to use the profile.
+AWS SSO (Single Sign-On) enables you to login using specified profile. You will need to specify the SSO settings to use in the AWS config file, log in to SSO using the AWS CLI, then tell Paws to use the profile.
 
 1. Specify the SSO settings to use in the AWS config file in ~/.aws/config, e.g.
 
@@ -58,6 +64,8 @@ Tell Paws to use the SSO profile. For alternate ways of specifying your profile,
 ```R
 Sys.setenv(AWS_PROFILE = "my-dev-profile")
 ```
+
+## Testing your Access
 Once logged in, you will be able to start accessing the AWS resources based on the privileges we granted you.
 ```r
 # list all buckets in S3
@@ -65,4 +73,4 @@ library(paws)
 svc <- paws::s3()
 s3$list_buckets()
 ```
-It is highly recommended to use the R [`paws`](https://github.com/paws-r/paws) Library as it is actively supported by AWS
+If you are authenticated, you will get a retrun message listing all our S3 buckets
