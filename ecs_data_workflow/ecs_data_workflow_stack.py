@@ -72,14 +72,11 @@ class EcsDataWorkflowStack(Stack):
                 ]))
 
         #######################################
-        # This section where you append each
-        # scheduled microservices to ECS
-        # Everytime you add new stack, it will
-        # create new microservices to the cluster
+        # create form extraction
         #######################################
         task_definition = ecs.FargateTaskDefinition(
             self,
-            "create-task-definition",
+            "create-form-extraction-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
             family='odk-form-extraction'
@@ -110,9 +107,45 @@ class EcsDataWorkflowStack(Stack):
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
+        #######################################
+        # create anomaly detection
+        #######################################
+        task_definition = ecs.FargateTaskDefinition(
+            self,
+            "create-anomaly-detection-task-definition",
+            execution_role=ecs_role,
+            task_role=ecs_role,
+            family='anomaly-detection'
+        )
+
+        dockerhub_image = 'databrewllc/anomaly-detection'
+
+        # Add container to task definition
+        container_definition = task_definition.add_container(
+            "task-anomaly-detection",
+            image=ecs.ContainerImage.from_registry(dockerhub_image),
+            logging=ecs.LogDrivers.aws_logs(stream_prefix="databrew-wf")
+        )
+
+        anomaly_detection = tasks.EcsRunTask(    
+            self, "AnomalyDetection",
+            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+            cluster=cluster,
+            task_definition=task_definition,
+            assign_public_ip=True,
+            container_overrides=[
+                tasks.ContainerOverride(
+                    container_definition=container_definition,
+                    environment=[
+                        tasks.TaskEnvironmentVariable(name="BUCKET_PREFIX", value=os.getenv('BUCKET_PREFIX')),
+                        tasks.TaskEnvironmentVariable(name="ODK_CREDENTIALS_SECRETS_NAME", value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+            )],
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        )
+
         # consolidate ecs into step function
         state_machine = sfn.StateMachine(self, "EcsWorkflowStateMachine",
-                                         definition = form_extraction.next(
+                                         definition = form_extraction.next(anomaly_detection).next(
                                             sfn.Succeed(self, "SuccessfulExtraction")))
 
         # add event rule to step function to run code on scheduled intervals
