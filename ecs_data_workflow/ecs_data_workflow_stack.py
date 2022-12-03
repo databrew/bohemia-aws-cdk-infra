@@ -162,7 +162,7 @@ class EcsDataWorkflowStack(Stack):
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
             self, "PipelineTriggerWorkHoursSchedule",
-            schedule=events.Schedule.expression("cron(00 6-14 * * ? *)"),
+            schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
             targets=[targets.SfnStateMachine(state_machine)]
         )
 
