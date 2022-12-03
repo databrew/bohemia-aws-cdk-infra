@@ -1,12 +1,12 @@
-# description: 
+# Description: 
 # This CDK code is used to provision resources
 # to AWS. It will provision resources to 
 # run ECS orchestration using Step Functions
 # and an EventBridge Scheduler
 #
-# author: atediarjo@gmail.com
-# reviewer: joe@databrew.cc
-# createdOn: October, 25th 2022
+# @author: atediarjo@gmail.com
+# @reviewer: joe@databrew.cc
+# @createdOn: October, 25th 2022
 
 import os
 import aws_cdk as cdk
@@ -101,8 +101,12 @@ class EcsDataWorkflowStack(Stack):
                 tasks.ContainerOverride(
                     container_definition=container_definition,
                     environment=[
-                        tasks.TaskEnvironmentVariable(name="BUCKET_PREFIX", value=os.getenv('BUCKET_PREFIX')),
-                        tasks.TaskEnvironmentVariable(name="ODK_CREDENTIALS_SECRETS_NAME", value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+                        tasks.TaskEnvironmentVariable(
+                            name="BUCKET_PREFIX", 
+                            value=os.getenv('BUCKET_PREFIX')),
+                        tasks.TaskEnvironmentVariable(
+                            name="ODK_CREDENTIALS_SECRETS_NAME", 
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
@@ -137,21 +141,35 @@ class EcsDataWorkflowStack(Stack):
                 tasks.ContainerOverride(
                     container_definition=container_definition,
                     environment=[
-                        tasks.TaskEnvironmentVariable(name="BUCKET_PREFIX", value=os.getenv('BUCKET_PREFIX')),
-                        tasks.TaskEnvironmentVariable(name="ODK_CREDENTIALS_SECRETS_NAME", value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+                        tasks.TaskEnvironmentVariable(
+                            name="BUCKET_PREFIX", 
+                            value=os.getenv('BUCKET_PREFIX')),
+                        tasks.TaskEnvironmentVariable(
+                            name="ODK_CREDENTIALS_SECRETS_NAME", 
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
-        # consolidate ecs into step function
-        state_machine = sfn.StateMachine(self, "EcsWorkflowStateMachine",
-                                         definition = form_extraction.next(anomaly_detection).next(
-                                            sfn.Succeed(self, "SuccessfulExtraction")))
+        # successful step
+        pipeline_success = sfn.Succeed(self, "Success")
 
-        # add event rule to step function to run code on scheduled intervals
-        scheduler = events.Rule(
-            self, "EcsWorkflowScheduler",
-            schedule=events.Schedule.expression("cron(59 23 * * ? *)"),
+        # consolidate ecs into step function
+        state_machine = sfn.StateMachine(
+            self, "EcsWorkflowStateMachine",
+            definition = form_extraction.next(anomaly_detection).next(pipeline_success))
+
+        # add event rule to run data pipeline for work time at EAT
+        hourly_schedule = events.Rule(
+            self, "PipelineTriggerWorkHoursSchedule",
+            schedule=events.Schedule.expression("cron(00 6-14 * * ? *)"),
+            targets=[targets.SfnStateMachine(state_machine)]
+        )
+
+        # add event rule to run at midnight EAT timezone
+        midnight_schedule = events.Rule(
+            self, "PipelineTriggerMidnightSchedule",
+            schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
             targets=[targets.SfnStateMachine(state_machine)]
         )
 
