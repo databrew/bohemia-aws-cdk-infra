@@ -46,7 +46,8 @@ class EcsDataWorkflowStack(Stack):
             self,
             "CreateCluster",
             vpc=vpc,
-            cluster_name='databrew-data-workflow'
+            cluster_name='databrew-data-workflow',
+            container_insights=False
         )
 
         # create execution role
