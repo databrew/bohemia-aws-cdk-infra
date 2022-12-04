@@ -42,11 +42,13 @@ class EcsDataWorkflowStack(Stack):
         )
 
         # create cluster for ECS
-        cluster = ecs.Cluster(
+        cluster = ecs.Cluster( 
             self,
             "CreateCluster",
             vpc=vpc,
             cluster_name='databrew-data-workflow',
+            container_insights=True
+            
         )
 
         # create execution role
