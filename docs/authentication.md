@@ -48,7 +48,7 @@ AWS SSO (Single Sign-On) enables you to login using specified profile. You will 
 
 ```
 [profile dbrew-prod]
-sso_start_url = https://my-sso-portal.awsapps.com/start
+sso_start_url = https://databrewllc.awsapps.com/start
 sso_region = us-east-1
 sso_account_id = 354598940118
 sso_role_name = PowerUserAccess # or access available to you
