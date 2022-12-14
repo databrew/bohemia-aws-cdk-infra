@@ -38,7 +38,7 @@ Sys.setenv(
 )
 ```
 
-### Option 2: Amazon SSO
+### Option 2: Using Amazon SSO
 
 To use this option, you will be required to have AWS CLI in your machine. Installation guide [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
@@ -47,22 +47,22 @@ AWS SSO (Single Sign-On) enables you to login using specified profile. You will 
 1. Specify the SSO settings to use in the AWS config file in ~/.aws/config, e.g.
 
 ```
-[profile my-dev-profile]
+[profile dbrew-prod]
 sso_start_url = https://my-sso-portal.awsapps.com/start
 sso_region = us-east-1
-sso_account_id = 123456789011
-sso_role_name = readOnly
-region = us-west-2
+sso_account_id = 354598940118
+sso_role_name = PowerUserAccess # or access available to you
+region = us-east-1
 output = json
 ```
 
 2. Log in to SSO using the AWS CLI.
 ```
-aws sso login --profile my-dev-profile
+aws sso login --profile dbrew-prod
 ```
 Tell Paws to use the SSO profile. For alternate ways of specifying your profile, see the set profile section.
 ```R
-Sys.setenv(AWS_PROFILE = "my-dev-profile")
+Sys.setenv(AWS_PROFILE = "dbrew-prod")
 ```
 
 ## Testing your Access
@@ -70,7 +70,7 @@ Once logged in, you will be able to start accessing the AWS resources based on t
 ```r
 # list all buckets in S3
 library(paws)
-svc <- paws::s3()
+s3 <- paws::s3()
 s3$list_buckets()
 ```
 If you are authenticated, you will get a retrun message listing all our S3 buckets
