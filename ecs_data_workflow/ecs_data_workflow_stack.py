@@ -73,6 +73,11 @@ class EcsDataWorkflowStack(Stack):
                 ]))
 
         #######################################
+        # get docker prod/dev versioning
+        #######################################
+        docker_version = os.getenv("DOCKER_VERSION")
+
+        #######################################
         # create form extraction
         #######################################
         task_definition = ecs.FargateTaskDefinition(
@@ -83,7 +88,7 @@ class EcsDataWorkflowStack(Stack):
             family='odk-form-extraction'
         )
 
-        dockerhub_image = 'databrewllc/odk-form-extraction'
+        dockerhub_image = f'databrewllc/odk-form-extraction:{docker_version}'
 
         # Add container to task definition
         container_definition = task_definition.add_container(
@@ -123,7 +128,7 @@ class EcsDataWorkflowStack(Stack):
             family='anomaly-detection'
         )
 
-        dockerhub_image = 'databrewllc/anomaly-detection'
+        dockerhub_image = f'databrewllc/anomaly-detection:{docker_version}'
 
         # Add container to task definition
         container_definition = task_definition.add_container(
