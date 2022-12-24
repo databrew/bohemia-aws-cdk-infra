@@ -3,7 +3,7 @@ name: Deploy AWS CDK to databrew dev account
 on:
   push:
     branches:
-      - dev-uat
+      - dev
 
 jobs:
   aws_cdk_uat:
@@ -13,6 +13,7 @@ jobs:
       CDK_DEFAULT_REGION: "us-east-1"
       BUCKET_PREFIX: "databrew-testing-"
       ODK_CREDENTIALS_SECRETS_NAME: "test/odk-credentials"
+      DOCKER_VERSION: "develop"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
