@@ -3,7 +3,7 @@ name: Deploy AWS CDK to databrew dev account
 on:
   push:
     branches:
-      - dev-uat
+      - dev
 
 jobs:
   aws_cdk_uat:
