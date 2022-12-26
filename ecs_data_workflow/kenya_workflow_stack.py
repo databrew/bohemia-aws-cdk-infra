@@ -1,13 +1,14 @@
-# Description: 
-# This CDK code is used to provision resources
-# to AWS. It will provision resources to 
-# run ECS orchestration using Step Functions
-# and an EventBridge Scheduler
-#
-# @author: atediarjo@gmail.com
-# @reviewer: joe@databrew.cc
-# @createdOn: October, 25th 2022
+"""
+Description: 
+This CDK code is used to provision resources
+to AWS. It will provision resources to 
+run ECS orchestration using Step Functions
+and an EventBridge Scheduler
 
+@author: atediarjo@gmail.com
+@reviewer: joe@databrew.cc
+@createdOn: October, 25th 2022
+"""
 import os
 import aws_cdk as cdk
 from aws_cdk import (
@@ -27,29 +28,12 @@ from constructs import Construct
 
 class KenyaWorkflowStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+    def __init__(self, scope: Construct, construct_id: str, env = None, cluster = None) -> None:
+        super().__init__(scope, construct_id, env = env)
 
-        # create vpc
-        vpc = ec2.Vpc(
-            self,
-            "MyVpc",
-            nat_gateways=0,
-            subnet_configuration=[{
-                'name': 'public-subnet-1',
-                'subnetType': ec2.SubnetType.PUBLIC,
-                'cidrMask': 24}]
-        )
-
-        # create cluster for ECS
-        cluster = ecs.Cluster( 
-            self,
-            "CreateCluster",
-            vpc=vpc,
-            cluster_name='databrew-data-workflow',
-            container_insights=False
-        )
-
+        #######################################
+        # Create ECS Role
+        #######################################
         # create execution role
         ecs_role = iam.Role(
             self, "createExecRole",
@@ -71,6 +55,7 @@ class KenyaWorkflowStack(Stack):
                     "s3:*",
                     "secretsmanager:*"
                 ]))
+
 
         #######################################
         # get docker prod/dev versioning
@@ -94,7 +79,7 @@ class KenyaWorkflowStack(Stack):
         container_definition = task_definition.add_container(
             "task-extraction",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDrivers.aws_logs(stream_prefix="databrew-wf")
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
 
         form_extraction = tasks.EcsRunTask(    
@@ -134,7 +119,7 @@ class KenyaWorkflowStack(Stack):
         container_definition = task_definition.add_container(
             "task-anomaly-detection",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDrivers.aws_logs(stream_prefix="databrew-wf")
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
 
         anomaly_detection = tasks.EcsRunTask(    
@@ -157,25 +142,28 @@ class KenyaWorkflowStack(Stack):
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
+
+        #######################################
+        # consolidate into step functions
+        #######################################
         # successful step
         pipeline_success = sfn.Succeed(self, "Success")
 
         # consolidate ecs into step function
         state_machine = sfn.StateMachine(
-            self, "EcsWorkflowStateMachine",
+            self, "KenyaDataPipeline",
             definition = form_extraction.next(anomaly_detection).next(pipeline_success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
-            self, "PipelineTriggerWorkHoursSchedule",
+            self, "KenyaDataPipelineTriggerWorkHoursSchedule",
             schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
             targets=[targets.SfnStateMachine(state_machine)]
         )
 
         # add event rule to run at midnight EAT timezone
         midnight_schedule = events.Rule(
-            self, "PipelineTriggerMidnightSchedule",
+            self, "KenyaDataPipelineTriggerMidnightSchedule",
             schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
             targets=[targets.SfnStateMachine(state_machine)]
         )
-
