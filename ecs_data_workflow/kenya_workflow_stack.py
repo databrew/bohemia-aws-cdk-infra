@@ -34,13 +34,13 @@ class KenyaWorkflowStack(Stack):
         #######################################
         # Create ECS Role
         #######################################
-        # create execution role
+        # create execution role: role is what your ECS will assume
         ecs_role = iam.Role(
             self, "createExecRole",
             assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
             role_name="databrew-ecs-workflow-role")
 
-        # add to policy
+        # each role has a policy attached to it
         ecs_role.add_to_policy(
             iam.PolicyStatement(
                 effect=iam.Effect.ALLOW,
@@ -65,6 +65,10 @@ class KenyaWorkflowStack(Stack):
         #######################################
         # create form extraction
         #######################################
+
+        # create task definition: task definition is the 
+        # set of guidelines being used for ECS to run Docker container
+        # what role you want to use and what is the name use in the console
         task_definition = ecs.FargateTaskDefinition(
             self,
             "create-form-extraction-task-definition",
@@ -73,15 +77,21 @@ class KenyaWorkflowStack(Stack):
             family='odk-form-extraction'
         )
 
+        # this is the dockerhub image that points to dockerhub
         dockerhub_image = f'databrewllc/odk-form-extraction:{docker_version}'
 
-        # Add container to task definition
+        # attach the container to the task definition
         container_definition = task_definition.add_container(
             "task-extraction",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
 
+        # placeholder runner of the ecs task
+        # on when the ecs is being executed
+        # gives information on which cluster to run,
+        # what is the task definition, container to use, bucket prefix
+        # where to fetch the odk credentials in AWS
         form_extraction = tasks.EcsRunTask(    
             self, "FormExtraction",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
@@ -142,6 +152,46 @@ class KenyaWorkflowStack(Stack):
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
+        #######################################
+        # create new-feature
+        #######################################
+        task_definition = ecs.FargateTaskDefinition(
+            self,
+            "create-new-feature-task-definition",
+            execution_role=ecs_role,
+            task_role=ecs_role,
+            family='new-feature'
+        )
+
+        dockerhub_image = f'databrewllc/new-feature:{docker_version}'
+
+        # Add container to task definition
+        container_definition = task_definition.add_container(
+            "task-new-feature",
+            image=ecs.ContainerImage.from_registry(dockerhub_image),
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
+        )
+
+        new_feature = tasks.EcsRunTask(    
+            self, "NewFeature",
+            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+            cluster=cluster,
+            task_definition=task_definition,
+            assign_public_ip=True,
+            container_overrides=[
+                tasks.ContainerOverride(
+                    container_definition=container_definition,
+                    environment=[
+                        tasks.TaskEnvironmentVariable(
+                            name="BUCKET_PREFIX", 
+                            value=os.getenv('BUCKET_PREFIX')),
+                        tasks.TaskEnvironmentVariable(
+                            name="ODK_CREDENTIALS_SECRETS_NAME", 
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+            )],
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        )
+
 
         #######################################
         # consolidate into step functions
@@ -152,7 +202,7 @@ class KenyaWorkflowStack(Stack):
         # consolidate ecs into step function
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = form_extraction.next(anomaly_detection).next(pipeline_success))
+            definition = form_extraction.next(anomaly_detection).next(new_feature).next(pipeline_success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
