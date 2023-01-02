@@ -153,27 +153,27 @@ class KenyaWorkflowStack(Stack):
         )
 
         #######################################
-        # create new-feature
+        # create data anonymization
         #######################################
         task_definition = ecs.FargateTaskDefinition(
             self,
-            "create-new-feature-task-definition",
+            "create-data-anonymization-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
             family='new-feature'
         )
 
-        dockerhub_image = f'databrewllc/new-feature:{docker_version}'
+        dockerhub_image = f'databrewllc/data-anonymization:{docker_version}'
 
         # Add container to task definition
         container_definition = task_definition.add_container(
-            "task-new-feature",
+            "task-data-anonymization",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
 
         new_feature = tasks.EcsRunTask(    
-            self, "NewFeature",
+            self, "DataAnonymization",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
