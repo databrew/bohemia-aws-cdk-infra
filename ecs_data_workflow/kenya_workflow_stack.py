@@ -107,7 +107,10 @@ class KenyaWorkflowStack(Stack):
                             value=os.getenv('BUCKET_PREFIX')),
                         tasks.TaskEnvironmentVariable(
                             name="ODK_CREDENTIALS_SECRETS_NAME", 
-                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
+                        tasks.TaskEnvironmentVariable(
+                            name="PIPELINE_STAGE", 
+                            value=os.getenv('PIPELINE_STAGE'))]
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
@@ -147,7 +150,10 @@ class KenyaWorkflowStack(Stack):
                             value=os.getenv('BUCKET_PREFIX')),
                         tasks.TaskEnvironmentVariable(
                             name="ODK_CREDENTIALS_SECRETS_NAME", 
-                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
+                        tasks.TaskEnvironmentVariable(
+                            name="PIPELINE_STAGE", 
+                            value=os.getenv('PIPELINE_STAGE'))]
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
@@ -187,7 +193,10 @@ class KenyaWorkflowStack(Stack):
                             value=os.getenv('BUCKET_PREFIX')),
                         tasks.TaskEnvironmentVariable(
                             name="ODK_CREDENTIALS_SECRETS_NAME", 
-                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME"))]
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
+                        tasks.TaskEnvironmentVariable(
+                            name="PIPELINE_STAGE", 
+                            value=os.getenv('PIPELINE_STAGE'))]
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
