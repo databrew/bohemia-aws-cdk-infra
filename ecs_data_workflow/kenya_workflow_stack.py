@@ -60,7 +60,7 @@ class KenyaWorkflowStack(Stack):
         #######################################
         # get docker prod/dev versioning
         #######################################
-        docker_version = os.getenv("DOCKER_VERSION")
+        docker_version = os.getenv("PIPELINE_STAGE")
 
         #######################################
         # create form extraction
