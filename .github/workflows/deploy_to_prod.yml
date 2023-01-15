@@ -13,7 +13,7 @@ jobs:
       CDK_DEFAULT_REGION: "us-east-1"
       ODK_CREDENTIALS_SECRETS_NAME: "prod/odk-credentials"
       BUCKET_PREFIX: ""
-      DOCKER_VERSION: "production"
+      PIPELINE_STAGE: "production"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
