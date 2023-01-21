@@ -166,7 +166,7 @@ class KenyaWorkflowStack(Stack):
             "create-data-anonymization-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
-            family='new-feature'
+            family='data-anonymization'
         )
 
         dockerhub_image = f'databrewllc/data-anonymization:{docker_version}'
