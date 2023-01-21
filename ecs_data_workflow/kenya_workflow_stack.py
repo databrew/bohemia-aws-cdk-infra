@@ -178,7 +178,7 @@ class KenyaWorkflowStack(Stack):
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
 
-        new_feature = tasks.EcsRunTask(    
+        data_anonymization = tasks.EcsRunTask(    
             self, "DataAnonymization",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
@@ -211,7 +211,7 @@ class KenyaWorkflowStack(Stack):
         # consolidate ecs into step function
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = form_extraction.next(anomaly_detection).next(new_feature).next(pipeline_success))
+            definition = form_extraction.next(anomaly_detection).next(data_anonymization).next(pipeline_success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
