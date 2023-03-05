@@ -93,7 +93,7 @@ class KenyaWorkflowStack(Stack):
         # what is the task definition, container to use, bucket prefix
         # where to fetch the odk credentials in AWS
         form_extraction = tasks.EcsRunTask(    
-            self, "FormExtraction",
+            self, "ODKFormExtraction",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
@@ -136,7 +136,7 @@ class KenyaWorkflowStack(Stack):
         )
 
         anomaly_detection = tasks.EcsRunTask(    
-            self, "AnomalyDetection",
+            self, "ReconAnomalyDetection",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
@@ -179,7 +179,7 @@ class KenyaWorkflowStack(Stack):
         )
 
         data_anonymization = tasks.EcsRunTask(    
-            self, "DataAnonymization",
+            self, "ReconDataAnonymization",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
