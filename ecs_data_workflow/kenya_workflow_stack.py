@@ -63,7 +63,7 @@ class KenyaWorkflowStack(Stack):
         docker_version = os.getenv("PIPELINE_STAGE")
 
         #######################################
-        # create form extraction
+        # Step 1: Create Form extraction
         #######################################
 
         # create task definition: task definition is the 
@@ -110,97 +110,23 @@ class KenyaWorkflowStack(Stack):
                             value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
                         tasks.TaskEnvironmentVariable(
                             name="PIPELINE_STAGE", 
-                            value=os.getenv('PIPELINE_STAGE'))]
+                            value=os.getenv('PIPELINE_STAGE')),
+                        tasks.TaskEnvironmentVariable(
+                            name="ODK_SERVER_ENDPOINT", 
+                            value=os.getenv('ODK_SERVER_ENDPOINT'))
+                    ]
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
         #######################################
-        # create anomaly detection
+        # Step 2a: Placeholder Create Ento Pipeline
         #######################################
-        task_definition = ecs.FargateTaskDefinition(
-            self,
-            "create-anomaly-detection-task-definition",
-            execution_role=ecs_role,
-            task_role=ecs_role,
-            family='anomaly-detection'
-        )
 
-        dockerhub_image = f'databrewllc/anomaly-detection:{docker_version}'
-
-        # Add container to task definition
-        container_definition = task_definition.add_container(
-            "task-anomaly-detection",
-            image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
-        )
-
-        anomaly_detection = tasks.EcsRunTask(    
-            self, "ReconAnomalyDetection",
-            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
-            cluster=cluster,
-            task_definition=task_definition,
-            assign_public_ip=True,
-            container_overrides=[
-                tasks.ContainerOverride(
-                    container_definition=container_definition,
-                    environment=[
-                        tasks.TaskEnvironmentVariable(
-                            name="BUCKET_PREFIX", 
-                            value=os.getenv('BUCKET_PREFIX')),
-                        tasks.TaskEnvironmentVariable(
-                            name="ODK_CREDENTIALS_SECRETS_NAME", 
-                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
-                        tasks.TaskEnvironmentVariable(
-                            name="PIPELINE_STAGE", 
-                            value=os.getenv('PIPELINE_STAGE'))]
-            )],
-            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
-        )
 
         #######################################
-        # create data anonymization
+        # Step 2b: Placeholder Create V0 Pipeline
         #######################################
-        task_definition = ecs.FargateTaskDefinition(
-            self,
-            "create-data-anonymization-task-definition",
-            execution_role=ecs_role,
-            task_role=ecs_role,
-            family='data-anonymization'
-        )
-
-        dockerhub_image = f'databrewllc/data-anonymization:{docker_version}'
-
-        # Add container to task definition
-        container_definition = task_definition.add_container(
-            "task-data-anonymization",
-            image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
-        )
-
-        data_anonymization = tasks.EcsRunTask(    
-            self, "ReconDataAnonymization",
-            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
-            cluster=cluster,
-            task_definition=task_definition,
-            assign_public_ip=True,
-            container_overrides=[
-                tasks.ContainerOverride(
-                    container_definition=container_definition,
-                    environment=[
-                        tasks.TaskEnvironmentVariable(
-                            name="BUCKET_PREFIX", 
-                            value=os.getenv('BUCKET_PREFIX')),
-                        tasks.TaskEnvironmentVariable(
-                            name="ODK_CREDENTIALS_SECRETS_NAME", 
-                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
-                        tasks.TaskEnvironmentVariable(
-                            name="PIPELINE_STAGE", 
-                            value=os.getenv('PIPELINE_STAGE'))]
-            )],
-            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
-        )
-
 
         #######################################
         # consolidate into step functions
@@ -208,10 +134,9 @@ class KenyaWorkflowStack(Stack):
         # successful step
         pipeline_success = sfn.Succeed(self, "Success")
 
-        # consolidate ecs into step function
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = form_extraction.next(anomaly_detection).next(data_anonymization).next(pipeline_success))
+            definition = form_extraction.next(pipeline_success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
@@ -226,3 +151,5 @@ class KenyaWorkflowStack(Stack):
             schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
             targets=[targets.SfnStateMachine(state_machine)]
         )
+
+        cdk.CfnOutput(self, "KenyaDataPipeline", value=state_machine.state_machine_arn)
