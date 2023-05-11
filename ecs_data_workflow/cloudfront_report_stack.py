@@ -23,13 +23,9 @@ class CloudFrontReportStack(Stack):
             encryption=s3.BucketEncryption.S3_MANAGED
         )
 
-        cloudfront.Distribution(self, "distro",
-            default_behavior=cloudfront.BehaviorOptions(
-                origin=origins.S3Origin(bucket),
-                function_associations=[cloudfront.FunctionAssociation(
-                    event_type=cloudfront.FunctionEventType.VIEWER_REQUEST
-                )]
-            )
+        cloudfront.Distribution(
+            self, "distro",
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket))
         )
 
         cdk.CfnOutput(self, "BucketArn", value=bucket.bucket_arn)
