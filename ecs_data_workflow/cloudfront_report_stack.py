@@ -15,7 +15,7 @@ class CloudFrontReportStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        output_bucket_name = os.getenv('PIPELINE_STAGE') + '-' +  "kwale-reporting-bucket"
+        output_bucket_name = "kwale-reporting-bucket" + '-' + os.getenv('PIPELINE_STAGE')
         bucket = s3.Bucket(
             self, "CFBucket",
             bucket_name= output_bucket_name,
@@ -23,10 +23,10 @@ class CloudFrontReportStack(Stack):
             encryption=s3.BucketEncryption.S3_MANAGED
         )
 
-        cloudfront.Distribution(
-            self, "distro",
+        distribution = cloudfront.Distribution(
+            self, "CfDistribution",
             default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket))
         )
 
         cdk.CfnOutput(self, "BucketArn", value=bucket.bucket_arn)
-        # cdk.CfnOutput(self, "DistributionURL", value=distribution.distribution_domain_name)
+        cdk.CfnOutput(self, "DistributionURL", value=distribution.distribution_domain_name)
