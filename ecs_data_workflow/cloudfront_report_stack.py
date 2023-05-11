@@ -22,17 +22,17 @@ class CloudFrontReportStack(Stack):
             encryption=s3.BucketEncryption.S3_MANAGED
         )
 
-        distribution = cloudfront.CloudFrontWebDistribution(
-            self, "CFDistribution",
-            origin_configs=[
-                cloudfront.SourceConfiguration(
-                    s3_origin_source=cloudfront.S3OriginConfig(
-                        s3_bucket_source=bucket.bucket_name
-                    ),
-                    behaviors=[cloudfront.Behavior(is_default_behavior=True)],
-                )
-            ],
-        )
+        # distribution = cloudfront.CloudFrontWebDistribution(
+        #     self, "CFDistribution",
+        #     origin_configs=[
+        #         cloudfront.SourceConfiguration(
+        #             s3_origin_source=cloudfront.S3OriginConfig(
+        #                 s3_bucket_source=bucket.bucket_name
+        #             ),
+        #             behaviors=[cloudfront.Behavior(is_default_behavior=True)],
+        #         )
+        #     ],
+        # )
 
         cdk.CfnOutput(self, "BucketArn", value=bucket.bucket_arn)
-        cdk.CfnOutput(self, "DistributionURL", value=distribution.distribution_domain_name)
+        # cdk.CfnOutput(self, "DistributionURL", value=distribution.distribution_domain_name)
