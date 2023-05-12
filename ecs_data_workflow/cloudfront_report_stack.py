@@ -30,3 +30,6 @@ class CloudFrontReportStack(Stack):
 
         cdk.CfnOutput(self, "BucketArn", value=bucket.bucket_arn)
         cdk.CfnOutput(self, "DistributionURL", value=distribution.distribution_domain_name)
+        cdk.CfnOutput(self, "DistributionID", 
+                      value=distribution.distribution_id,
+                      export_name='CF_DISTRIBUTION_ID')

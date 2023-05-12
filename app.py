@@ -30,6 +30,13 @@ base_infra = BaseInfrastructureStack(
     env = cdk_default_environment
 )
 
+# This is the stack used for cloudfront
+cloudfront_report = CloudFrontReportStack(
+    app, "CloudFrontReportStack",
+    env = cdk_default_environment
+)
+
+
 # This is the stack used for kenya
 kenya_workflow = KenyaWorkflowStack(
     app, "KenyaWorkflowStack",
@@ -37,11 +44,7 @@ kenya_workflow = KenyaWorkflowStack(
     cluster = base_infra.cluster
 )
 
-# This is the stack used for cloudfront
-cloudfront_report = CloudFrontReportStack(
-    app, "CloudFrontReportStack",
-    env = cdk_default_environment
-)
+
 
 # synthesize to cloudformation
 app.synth()
