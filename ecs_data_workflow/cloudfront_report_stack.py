@@ -15,7 +15,7 @@ class CloudFrontReportStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        output_bucket_name = "kwale-reporting-bucket" + '-' + os.getenv('PIPELINE_STAGE')
+        output_bucket_name = os.getenv('BUCKET_PREFIX') + '-' + "kenya-reporting-bucket"
         bucket = s3.Bucket(
             self, "CFBucket",
             bucket_name= output_bucket_name,
