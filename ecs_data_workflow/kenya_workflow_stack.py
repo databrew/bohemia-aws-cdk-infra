@@ -71,8 +71,9 @@ class KenyaWorkflowStack(Stack):
                     "ecr:BatchGetImage",
                     "logs:CreateLogStream",
                     "logs:PutLogEvents",
+                    "cloudfront:CreateInvalidation",
                     "s3:*",
-                    "secretsmanager:*"
+                    "secretsmanager:*",
                 ]))
 
 
