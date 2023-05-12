@@ -47,7 +47,7 @@ class KenyaWorkflowStack(Stack):
                             value=os.getenv('ODK_SERVER_ENDPOINT')),
                         tasks.TaskEnvironmentVariable(
                             name="CF_DISTRIBUTION_ID", 
-                            value=cdk.Fn.import_value('CF_DISTRIBUTION_ID')),
+                            value=cdk.Fn.import_value('cf-distribution-id')),
                     ]
 
         #######################################
