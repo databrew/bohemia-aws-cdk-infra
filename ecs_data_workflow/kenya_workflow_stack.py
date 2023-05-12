@@ -31,6 +31,22 @@ class KenyaWorkflowStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, env = None, cluster = None) -> None:
         super().__init__(scope, construct_id, env = env)
 
+
+        environment_variables = [
+                        tasks.TaskEnvironmentVariable(
+                            name="BUCKET_PREFIX", 
+                            value=os.getenv('BUCKET_PREFIX')),
+                        tasks.TaskEnvironmentVariable(
+                            name="ODK_CREDENTIALS_SECRETS_NAME", 
+                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
+                        tasks.TaskEnvironmentVariable(
+                            name="PIPELINE_STAGE", 
+                            value=os.getenv('PIPELINE_STAGE')),
+                        tasks.TaskEnvironmentVariable(
+                            name="ODK_SERVER_ENDPOINT", 
+                            value=os.getenv('ODK_SERVER_ENDPOINT'))
+                    ]
+
         #######################################
         # Create ECS Role
         #######################################
@@ -93,7 +109,7 @@ class KenyaWorkflowStack(Stack):
         # what is the task definition, container to use, bucket prefix
         # where to fetch the odk credentials in AWS
         form_extraction = tasks.EcsRunTask(    
-            self, "ODKFormExtraction",
+            self, "ODKFormExtractionJob",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
@@ -101,20 +117,7 @@ class KenyaWorkflowStack(Stack):
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
-                    environment=[
-                        tasks.TaskEnvironmentVariable(
-                            name="BUCKET_PREFIX", 
-                            value=os.getenv('BUCKET_PREFIX')),
-                        tasks.TaskEnvironmentVariable(
-                            name="ODK_CREDENTIALS_SECRETS_NAME", 
-                            value=os.getenv("ODK_CREDENTIALS_SECRETS_NAME")),
-                        tasks.TaskEnvironmentVariable(
-                            name="PIPELINE_STAGE", 
-                            value=os.getenv('PIPELINE_STAGE')),
-                        tasks.TaskEnvironmentVariable(
-                            name="ODK_SERVER_ENDPOINT", 
-                            value=os.getenv('ODK_SERVER_ENDPOINT'))
-                    ]
+                    environment= environment_variables
             )],
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
@@ -122,7 +125,41 @@ class KenyaWorkflowStack(Stack):
         #######################################
         # Step 2a: Placeholder Create Ento Pipeline
         #######################################
+        # create task definition: task definition is the 
+        # set of guidelines being used for ECS to run Docker container
+        # what role you want to use and what is the name use in the console
+        task_definition = ecs.FargateTaskDefinition(
+            self,
+            "pipeline-ento-task-definition",
+            execution_role=ecs_role,
+            task_role=ecs_role,
+            family='pipeline-ento'
+        )
 
+        # this is the dockerhub image that points to dockerhub
+        dockerhub_image = f'databrewllc/pipeline-ento:{docker_version}'
+
+        # attach the container to the task definition
+        container_definition = task_definition.add_container(
+            "pipeline-ento-container",
+            image=ecs.ContainerImage.from_registry(dockerhub_image),
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
+        )
+
+        # ento pipeline dump
+        ento_pipeline = tasks.EcsRunTask(    
+            self, "EntoJob",
+            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+            cluster=cluster,
+            task_definition=task_definition,
+            assign_public_ip=True,
+            container_overrides=[
+                tasks.ContainerOverride(
+                    container_definition=container_definition,
+                    environment= environment_variables
+            )],
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        )
 
         #######################################
         # Step 2b: Placeholder Create V0 Pipeline
@@ -136,7 +173,7 @@ class KenyaWorkflowStack(Stack):
 
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = form_extraction.next(pipeline_success))
+            definition = form_extraction.next(ento_pipeline).next(pipeline_success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
