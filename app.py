@@ -11,7 +11,7 @@ import os
 import aws_cdk as cdk
 from ecs_data_workflow.base_infrastructure_stack import BaseInfrastructureStack
 from ecs_data_workflow.kenya_workflow_stack import KenyaWorkflowStack
-
+from ecs_data_workflow.cloudfront_report_stack import CloudFrontReportStack
 
 # instantiate application
 app = cdk.App()
@@ -30,12 +30,21 @@ base_infra = BaseInfrastructureStack(
     env = cdk_default_environment
 )
 
+# This is the stack used for cloudfront
+cloudfront_report = CloudFrontReportStack(
+    app, "CloudFrontReportStack",
+    env = cdk_default_environment
+)
+
+
 # This is the stack used for kenya
 kenya_workflow = KenyaWorkflowStack(
     app, "KenyaWorkflowStack",
     env = cdk_default_environment,
     cluster = base_infra.cluster
 )
+
+
 
 # synthesize to cloudformation
 app.synth()
