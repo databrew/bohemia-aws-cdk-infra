@@ -14,7 +14,6 @@ class CloudFrontReportStack(Stack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-
         output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting"
         bucket = s3.Bucket(
             self, "CFBucket",
