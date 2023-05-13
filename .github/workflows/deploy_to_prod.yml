@@ -11,9 +11,10 @@ jobs:
     env: 
       CDK_DEFAULT_ACCOUNT: "354598940118"
       CDK_DEFAULT_REGION: "us-east-1"
-      ODK_CREDENTIALS_SECRETS_NAME: "prod/odk-credentials"
       BUCKET_PREFIX: ""
+      ODK_CREDENTIALS_SECRETS_NAME: "prod/odk-credentials"
       PIPELINE_STAGE: "production"
+      ODK_SERVER_ENDPOINT: 'https://databrew.org'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
