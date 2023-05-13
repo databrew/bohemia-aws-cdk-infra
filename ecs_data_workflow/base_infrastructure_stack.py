@@ -28,16 +28,7 @@ class BaseInfrastructureStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
                 # create vpc
-        self.vpc = ec2.Vpc(
-            self,
-            "databrew-data-workflows-vpc",
-            nat_gateways=0,
-            subnet_configuration=[
-                {'cidrMask': 28, 
-                 'name': 'kenya-private-subnet-1', 
-                 'subnetType': ec2.SubnetType.PRIVATE_ISOLATED} 
-            ]
-        )
+        self.vpc = ec2.Vpc(self, "InfraVPC")
 
         # create cluster for ECS
         self.cluster = ecs.Cluster( 
@@ -45,7 +36,7 @@ class BaseInfrastructureStack(Stack):
             "CreateCluster",
             vpc=self.vpc,
             cluster_name='databrew-data-workflows-cluster',
-            container_insights=False
+            container_insights=True
         )
 
         cdk.CfnOutput(self, "ClusterARN", value=self.cluster.cluster_arn)
