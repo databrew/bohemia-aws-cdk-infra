@@ -28,7 +28,11 @@ class BaseInfrastructureStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
                 # create vpc
-        self.vpc = ec2.Vpc(self, "InfraVPC")
+        self.vpc = ec2.Vpc(
+            self,
+            "InfraVPC", 
+            nat_gateways= 0,
+            max_azs=1)
 
         # create cluster for ECS
         self.cluster = ecs.Cluster( 
