@@ -156,7 +156,7 @@ class KenyaWorkflowStack(Stack):
         # gives information on which cluster to run,
         # what is the task definition, container to use, bucket prefix
         # where to fetch the odk credentials in AWS
-        form_extraction = tasks.EcsRunTask(    
+        cleaning_pipeline = tasks.EcsRunTask(    
             self, "PipelineCleaning",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
@@ -221,7 +221,7 @@ class KenyaWorkflowStack(Stack):
 
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = form_extraction.next(ento_pipeline).next(pipeline_success))
+            definition = form_extraction.next(cleaning_pipeline).next(ento_pipeline).next(pipeline_success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
