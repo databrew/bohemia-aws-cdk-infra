@@ -12,7 +12,7 @@ class GlueInfraStack(Stack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-lakehouse-db"
+        output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-lake-db"
         bucket = s3.Bucket(
             self, "lakehouse-infra",
             bucket_name= output_bucket_name,

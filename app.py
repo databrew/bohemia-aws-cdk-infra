@@ -12,6 +12,7 @@ import aws_cdk as cdk
 from ecs_data_workflow.base_infrastructure_stack import BaseInfrastructureStack
 from ecs_data_workflow.kenya_workflow_stack import KenyaWorkflowStack
 from ecs_data_workflow.cloudfront_report_stack import CloudFrontReportStack
+from ecs_data_workflow.glue_infra_stack import GlueInfraStack
 
 # instantiate application
 app = cdk.App()
@@ -45,6 +46,11 @@ kenya_workflow = KenyaWorkflowStack(
 )
 
 
+# this is the glue database setup
+glue_db = GlueInfraStack(
+    app, "GlueInfraStack",
+    env = cdk_default_environment,
+)
 
 # synthesize to cloudformation
 app.synth()
