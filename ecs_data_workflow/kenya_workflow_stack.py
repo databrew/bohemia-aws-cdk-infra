@@ -117,7 +117,7 @@ class KenyaWorkflowStack(Stack):
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
-            assign_public_ip=True,
+            # assign_public_ip=True,
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
@@ -161,7 +161,7 @@ class KenyaWorkflowStack(Stack):
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
-            assign_public_ip=True,
+            # assign_public_ip=True,
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
@@ -201,7 +201,7 @@ class KenyaWorkflowStack(Stack):
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
-            assign_public_ip=True,
+            # assign_public_ip=True,
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
