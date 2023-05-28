@@ -33,18 +33,18 @@ class BaseInfrastructureStack(Stack):
             "InfraVPC", 
             nat_gateways= 0,
             max_azs=2,
-            subnet_configuration=[
-                ec2.SubnetConfiguration(
-                    name = 'PublicSubnet',
-                    subnet_type = ec2.SubnetType.PUBLIC,
-                    cidr_mask = 26
-                ),
-                ec2.SubnetConfiguration(
-                    name = 'PrivateSubnet',
-                    subnet_type = ec2.SubnetType.PRIVATE_ISOLATED,
-                    cidr_mask = 26
-                )
-            ]
+            # subnet_configuration=[
+            #     ec2.SubnetConfiguration(
+            #         name = 'PublicSubnet',
+            #         subnet_type = ec2.SubnetType.PUBLIC,
+            #         cidr_mask = 24
+            #     ),
+            #     ec2.SubnetConfiguration(
+            #         name = 'PrivateSubnet',
+            #         subnet_type = ec2.SubnetType.PRIVATE_ISOLATED,
+            #         cidr_mask = 24
+            #     )
+            # ]
         )
 
         # create cluster for ECS
