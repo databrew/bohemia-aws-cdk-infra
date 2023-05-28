@@ -192,7 +192,7 @@ class KenyaWorkflowStack(Stack):
             "pipeline-ento-container",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
-            memory_limit_mi_b=2048
+            memory_limit_mib=2048
         )
 
         # ento pipeline dump
