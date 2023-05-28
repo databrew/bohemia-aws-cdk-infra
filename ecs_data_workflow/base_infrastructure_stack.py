@@ -32,7 +32,7 @@ class BaseInfrastructureStack(Stack):
             self,
             "InfraVPC", 
             nat_gateways= 0,
-            max_azs=1)
+            max_azs=2)
 
         # create cluster for ECS
         self.cluster = ecs.Cluster( 
