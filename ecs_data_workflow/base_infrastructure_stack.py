@@ -31,20 +31,8 @@ class BaseInfrastructureStack(Stack):
         self.vpc = ec2.Vpc(
             self,
             "InfraVPC", 
-            nat_gateways= 1,
-            max_azs=2,
-            subnet_configuration=[
-                ec2.SubnetConfiguration(
-                    name = 'PublicSubnet',
-                    subnet_type = ec2.SubnetType.PUBLIC,
-                    cidr_mask = 24
-                ),
-                ec2.SubnetConfiguration(
-                    name = 'PrivateSubnet',
-                    subnet_type = ec2.SubnetType.PRIVATE_ISOLATED,
-                    cidr_mask = 24
-                )
-            ]
+            nat_gateways= 0,
+            max_azs=1
         )
 
         # create cluster for ECS
