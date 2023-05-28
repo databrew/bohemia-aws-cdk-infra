@@ -182,7 +182,6 @@ class KenyaWorkflowStack(Stack):
             execution_role=ecs_role,
             task_role=ecs_role,
             family='pipeline-ento',
-            memory_limit_mi_b=1024
         )
 
         # this is the dockerhub image that points to dockerhub
