@@ -181,7 +181,8 @@ class KenyaWorkflowStack(Stack):
             "pipeline-ento-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
-            family='pipeline-ento'
+            family='pipeline-ento',
+            memory_limit_mi_b=1024
         )
 
         # this is the dockerhub image that points to dockerhub
@@ -190,7 +191,6 @@ class KenyaWorkflowStack(Stack):
         # attach the container to the task definition
         container_definition = task_definition.add_container(
             "pipeline-ento-container",
-            memory_limit_mib = 1024,
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
