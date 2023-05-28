@@ -117,7 +117,7 @@ class KenyaWorkflowStack(Stack):
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
-            assign_public_ip=True,
+            assign_public_ip=False,
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
@@ -161,7 +161,7 @@ class KenyaWorkflowStack(Stack):
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
-            assign_public_ip=True,
+            assign_public_ip=False,
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
@@ -190,6 +190,7 @@ class KenyaWorkflowStack(Stack):
         # attach the container to the task definition
         container_definition = task_definition.add_container(
             "pipeline-ento-container",
+            memory_limit_mib = 1024,
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
         )
@@ -200,7 +201,7 @@ class KenyaWorkflowStack(Stack):
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
-            assign_public_ip=True,
+            assign_public_ip=False,
             container_overrides=[
                 tasks.ContainerOverride(
                     container_definition=container_definition,
