@@ -35,13 +35,13 @@ class BaseInfrastructureStack(Stack):
             max_azs=2,
             subnet_configuration=[
                 ec2.SubnetConfiguration(
-                    name = 'Public-Subent',
+                    name = 'Public-Subnet',
                     subnet_type = ec2.SubnetType.PUBLIC,
                     cidr_mask = 26
                 ),
                 ec2.SubnetConfiguration(
                     name = 'Private-Subnet',
-                    subnet_type = ec2.SubnetType.PRIVATE_ISOLATED,
+                    subnet_type = ec2.SubnetType.ISOLATED,
                     cidr_mask = 26
                 )
             ]
