@@ -181,7 +181,8 @@ class KenyaWorkflowStack(Stack):
             "pipeline-ento-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
-            family='pipeline-ento'
+            family='pipeline-ento',
+            memory_limit_mib= 2048
         )
 
         # this is the dockerhub image that points to dockerhub
@@ -191,7 +192,8 @@ class KenyaWorkflowStack(Stack):
         container_definition = task_definition.add_container(
             "pipeline-ento-container",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
+            memory_limit_mib=2048
         )
 
         # ento pipeline dump
@@ -221,7 +223,7 @@ class KenyaWorkflowStack(Stack):
 
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = form_extraction.next(cleaning_pipeline).next(success))
+            definition = form_extraction.next(cleaning_pipeline).next(ento_pipeline).next(success))
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
