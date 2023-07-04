@@ -223,7 +223,7 @@ class KenyaWorkflowStack(Stack):
         choice = sfn.Choice(self, 'choice')
         success_trigger = sfn.Succeed(self, "SuccessfulTrigger")
         fail_trigger = sfn.Fail(self, "FailTrigger")
-        passby = sfn.Pass(self, 'passby')
+        pass_trigger = sfn.Pass(self, 'passby')
 
         # conditional state
         success_or_fail = choice.when(sfn.Condition.string_equals("$.status", "FAILED"), fail_trigger)\
@@ -238,7 +238,7 @@ class KenyaWorkflowStack(Stack):
         # consolidate into parallel workflow
         definition = (sfn.Parallel(
             self, 'DataPipeline'
-        ).branch(passby)).next(success_or_fail)
+        ).branch(pass_trigger)).next(success_or_fail)
 
         # consolidate into state machine
         state_machine = sfn.StateMachine(
