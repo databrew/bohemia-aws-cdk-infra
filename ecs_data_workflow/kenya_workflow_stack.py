@@ -220,14 +220,14 @@ class KenyaWorkflowStack(Stack):
         #######################################
 
         # states
-        choice = sfn.Choice(self, 'choice')
+        # choice = sfn.Choice(self, 'choice')
         success_trigger = sfn.Succeed(self, "SuccessfulTrigger")
         fail_trigger = sfn.Fail(self, "FailTrigger")
         pass_trigger = sfn.Pass(self, 'passby')
 
         # conditional state
-        success_or_fail = choice.when(sfn.Condition.string_equals("$.status", "FAILED"), fail_trigger)\
-            .when(sfn.Condition.string_equals("$.status", "SUCCEEDED"), success_trigger)
+        # success_or_fail = choice.when(sfn.Condition.string_equals("$.status", "FAILED"), fail_trigger)\
+        #     .when(sfn.Condition.string_equals("$.status", "SUCCEEDED"), success_trigger)
 
         # # step-wise data extraction
         # pipeline = fail_trigger\
