@@ -239,7 +239,7 @@ class KenyaWorkflowStack(Stack):
         definition = (sfn.Parallel(
             self, 
             'DataPipeline',
-        ).branch(pass_trigger)).addCatch(fail_trigger).next(success_trigger)
+        ).branch(pass_trigger)).add_catch(fail_trigger).next(success_trigger)
 
 
         # consolidate into state machines
