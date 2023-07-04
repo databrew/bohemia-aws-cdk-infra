@@ -218,26 +218,33 @@ class KenyaWorkflowStack(Stack):
         #######################################
         # Step Functions
         #######################################
-        choice = sfn.Choice(self, 'Did it work?')
-        success = sfn.Succeed(self, "Success")
-        fail = sfn.Fail(self, "Fail")
+
+        # states
+        choice = sfn.Choice(self, 'choice')
+        success_trigger = sfn.Succeed(self, "SuccessfulTrigger")
+        fail_trigger = sfn.Fail(self, "FailTrigger")
         passby = sfn.Pass(self, 'passby')
 
-
         # conditional state
-        success_or_fail = choice.when(sfn.Condition.string_equals('$.status', 'SUCCESS'), success).otherwise(fail)
+        success_or_fail = choice.when(sfn.Condition.string_equals("$.status", "FAILED"), fail_trigger)\
+            .when(sfn.Condition.string_equals("$.status", "SUCCEEDED"), success_trigger)
 
-        pipeline = form_extraction.next(cleaning_pipeline).next(ento_pipeline)
+        # # step-wise data extraction
+        # pipeline = fail_trigger\
+        #     .next(form_extraction)\
+        #     .next(cleaning_pipeline)\
+        #     .next(ento_pipeline)
+    
+        # consolidate into parallel workflow
         definition = (sfn.Parallel(
             self, 'DataPipeline'
-        ).branch(pipeline)).next(success_or_fail)
+        ).branch(passby)).next(success_or_fail)
 
+        # consolidate into state machine
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
             definition = definition)
         
-
-
         #######################################
         # Eventbridge
         #######################################
