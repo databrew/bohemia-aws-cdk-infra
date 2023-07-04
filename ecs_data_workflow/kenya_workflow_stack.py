@@ -236,16 +236,19 @@ class KenyaWorkflowStack(Stack):
         #     .next(ento_pipeline)
     
         # consolidate into parallel workflow
-        definition = (sfn.Parallel(
+        parallel = sfn.Parallel(
             self, 
             'DataPipeline',
-        ).branch(pass_trigger)).add_catch(fail_trigger).next(success_trigger)
+        )
+        parallel.branch(pass_trigger)
+        parallel.add_catch(fail_trigger)
+        parallel.next(success_trigger)
 
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
-            definition = definition)
+            definition = parallel)
         
         #######################################
         # Eventbridge
