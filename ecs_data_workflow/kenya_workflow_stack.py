@@ -221,19 +221,14 @@ class KenyaWorkflowStack(Stack):
 
         # states
         # choice = sfn.Choice(self, 'choice')
-        success_trigger = sfn.Succeed(self, "SuccessfulTrigger")
-        manual_fail_trigger = sfn.Fail(self, "ManualFailTrigger")
-        fail_trigger = sfn.Fail(self, "FailTrigger")
-        pass_trigger = sfn.Pass(self, 'passby')
+        success_trigger = sfn.Succeed(self, "Don't worry be happy")
+        fail_trigger = sfn.Fail(self, "Notify Failure!")
 
-        # conditional state
-        # success_or_fail = choice.when(sfn.Condition.string_equals("$.status", "FAILED"), fail_trigger)\
-        #     .when(sfn.Condition.string_equals("$.status", "SUCCEEDED"), success_trigger)
 
         # # step-wise data extraction
-        pipeline = form_extraction.next(manual_fail_trigger)
-            # .next(cleaning_pipeline)\
-            # .next(ento_pipeline)
+        pipeline = form_extraction\
+            .next(cleaning_pipeline)\
+            .next(ento_pipeline)
     
         # consolidate into parallel workflow
         parallel = sfn.Parallel(
