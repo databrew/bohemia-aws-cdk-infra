@@ -216,20 +216,31 @@ class KenyaWorkflowStack(Stack):
         #######################################
 
         #######################################
-        # consolidate into step functions
+        # Step Functions
         #######################################
-        # successful step
-        success = sfn.Succeed(self, "SuccessfulRun")
+        choice = sfn.Choice(self, 'Did it work?')
+        success = sfn.Succeed(self, "Success")
+        fail = sfn.Fail(self, "Fail")
         passby = sfn.Pass(self, 'passby')
+
+
+        # conditional state
+        success_or_fail = choice.when(sfn.Condition.string_equals('$.status', 'SUCCESS'), success).otherwise(fail)
 
         pipeline = form_extraction.next(cleaning_pipeline).next(ento_pipeline)
         definition = (sfn.Parallel(
-            self, 'All Jobs'
-        ).branch(pipeline).branch(passby)).next(success)
+            self, 'DataPipeline'
+        ).branch(pipeline)).next(success_or_fail)
 
         state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
             definition = definition)
+        
+
+
+        #######################################
+        # Eventbridge
+        #######################################
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
