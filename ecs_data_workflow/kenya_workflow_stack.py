@@ -230,10 +230,9 @@ class KenyaWorkflowStack(Stack):
         #     .when(sfn.Condition.string_equals("$.status", "SUCCEEDED"), success_trigger)
 
         # # step-wise data extraction
-        pipeline = fail_trigger\
-            .next(form_extraction)\
-            .next(cleaning_pipeline)\
-            .next(ento_pipeline)
+        pipeline = form_extraction.next(fail_trigger)
+            # .next(cleaning_pipeline)\
+            # .next(ento_pipeline)
     
         # consolidate into parallel workflow
         parallel = sfn.Parallel(
