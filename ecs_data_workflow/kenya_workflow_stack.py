@@ -222,6 +222,7 @@ class KenyaWorkflowStack(Stack):
         # states
         # choice = sfn.Choice(self, 'choice')
         success_trigger = sfn.Succeed(self, "SuccessfulTrigger")
+        manual_fail_trigger = sfn.Fail(self, "ManualFailTrigger")
         fail_trigger = sfn.Fail(self, "FailTrigger")
         pass_trigger = sfn.Pass(self, 'passby')
 
@@ -230,7 +231,7 @@ class KenyaWorkflowStack(Stack):
         #     .when(sfn.Condition.string_equals("$.status", "SUCCEEDED"), success_trigger)
 
         # # step-wise data extraction
-        pipeline = form_extraction.next(fail_trigger)
+        pipeline = form_extraction.next(manual_fail_trigger)
             # .next(cleaning_pipeline)\
             # .next(ento_pipeline)
     
