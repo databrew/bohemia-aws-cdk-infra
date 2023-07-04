@@ -228,7 +228,7 @@ class KenyaWorkflowStack(Stack):
 
         state_machine = sfn.Parallel(
             self, 'All Jobs'
-        ).branch(pipeline).next(success)
+        ).branch(pipeline)
 
         # add event rule to run data pipeline for work time at EAT
         hourly_schedule = events.Rule(
