@@ -212,33 +212,74 @@ class KenyaWorkflowStack(Stack):
         )
 
         #######################################
-        # Step 2b: Placeholder Create V0 Pipeline
+        # Step 3b: Placeholder Create V0 Pipeline
         #######################################
+        task_definition = ecs.FargateTaskDefinition(
+            self,
+            "pipeline-se-task-definition",
+            execution_role=ecs_role,
+            task_role=ecs_role,
+            family='pipeline-se',
+            memory_limit_mib= 2048
+        )
+
+        # this is the dockerhub image that points to dockerhub
+        dockerhub_image = f'databrewllc/pipeline-safety-and-efficacy:{docker_version}'
+
+        # attach the container to the task definition
+        container_definition = task_definition.add_container(
+            "pipeline-se-container",
+            image=ecs.ContainerImage.from_registry(dockerhub_image),
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
+            memory_limit_mib=2048
+        )
+
+        # ento pipeline dump
+        se_pipeline = tasks.EcsRunTask(    
+            self, "Safety&EfficacyJob",
+            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+            cluster=cluster,
+            task_definition=task_definition,
+            assign_public_ip=True,
+            container_overrides=[
+                tasks.ContainerOverride(
+                    container_definition=container_definition,
+                    environment= environment_variables
+            )],
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        )
 
         #######################################
         # Step Functions
         #######################################
 
-        # states
-        # choice = sfn.Choice(self, 'choice')
+        # success object
         success_trigger = sfn.Succeed(self, "Don't worry be happy")
-        fail_trigger = sfn.Fail(self, "Notify Failure!")
 
-
-        # # step-wise data extraction
-        pipeline = form_extraction\
-            .next(cleaning_pipeline)\
-            .next(ento_pipeline)
-    
-        # consolidate into parallel workflow
-        parallel = sfn.Parallel(
+        # extract and clean
+        extract_clean_pipeline = form_extraction.next(cleaning_pipeline)
+        extract_clean_fail_trigger = sfn.Fail(self, "Notify Failure in extract and cleaning!")
+        
+        extract_clean_parallel = sfn.Parallel(
             self, 
-            'DataPipeline',
+            'Extract and Clean',
         )
-        parallel.branch(pipeline)
-        parallel.add_catch(fail_trigger)
-        parallel.next(success_trigger)
+        extract_clean_parallel.branch(extract_clean_pipeline)
+        extract_clean_parallel.add_catch(extract_clean_fail_trigger)
 
+
+        # reporting parallels
+        reporting_fail_trigger = sfn.Fail(self, "Notify Failure in reporting!")
+        reporting_parallel = sfn.Parallel(
+            self, 
+            'Reporting',
+        )
+        reporting_parallel.branch(ento_pipeline)
+        reporting_parallel.branch(se_pipeline)
+        reporting_parallel.add_catch(reporting_fail_trigger)
+        
+
+        parallel = extract_clean_parallel.next(reporting_parallel).next(success_trigger)
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
