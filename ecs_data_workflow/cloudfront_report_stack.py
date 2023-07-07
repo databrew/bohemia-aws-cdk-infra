@@ -24,6 +24,7 @@ class CloudFrontReportStack(Stack):
 
         distribution = cloudfront.Distribution(
             self, "CfDistribution",
+            default_root_object= 'index.html',
             default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket))
         )
 
