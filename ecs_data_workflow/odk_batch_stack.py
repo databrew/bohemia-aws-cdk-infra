@@ -49,8 +49,8 @@ class OdkBatchStack(Stack):
         # create execution role: role is what your ECS will assume
         ecs_role = iam.Role(
             self, "createExecRole",
-            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-            role_name="databrew-ecs-workflow-role")
+            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com")
+        )
 
         # each role has a policy attached to it
         ecs_role.add_to_policy(
