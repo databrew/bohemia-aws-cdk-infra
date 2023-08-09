@@ -42,7 +42,9 @@ cloudfront_report = CloudFrontReportStack(
 # odk batch for dumping data every 10 mins
 odk_batch = OdkBatchStack(
     app, "ODKBatchStack",
-    env = cdk_default_environment
+    env = cdk_default_environment,
+    cluster = base_infra.cluster
+
 )
 
 # This is the stack used for kenya
