@@ -123,15 +123,15 @@ class OdkBatchStack(Stack):
         #######################################
 
         # success object
-        success_trigger = sfn.Succeed(self, "Don't worry be happy")
+        success_trigger = sfn.Succeed(self, "ODK Batch Pull Success")
 
         # extract and clean
         extract_odk_pipeline = form_extraction
-        extract_odk_fail_trigger = sfn.Fail(self, "Notify Failure in extract and cleaning!")
+        extract_odk_fail_trigger = sfn.Fail(self, "Notify Failure in ODK Extraction!")
         
         extract_clean_parallel = sfn.Parallel(
             self, 
-            'Extract and Clean',
+            'ODK Batch Data Pull',
         )
         extract_clean_parallel.branch(extract_odk_pipeline)
         extract_clean_parallel.add_catch(extract_odk_fail_trigger)
@@ -142,7 +142,7 @@ class OdkBatchStack(Stack):
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
-            self, "KenyaDataPipeline",
+            self, "ODKBatch",
             definition = parallel)
         
         #######################################
@@ -152,7 +152,7 @@ class OdkBatchStack(Stack):
         if (os.getenv('PIPELINE_STAGE') == 'production'):
                     # add event rule to run data pipeline for work time at EAT
             update_schedule = events.Rule(
-                self, "KenyaDataPipelineTriggerWorkHoursSchedule",
+                self, "ODKBatchRefreshRate",
                 schedule=events.Schedule.expression("rate(10 minutes)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
