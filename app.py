@@ -13,6 +13,7 @@ from ecs_data_workflow.base_infrastructure_stack import BaseInfrastructureStack
 from ecs_data_workflow.kenya_workflow_stack import KenyaWorkflowStack
 from ecs_data_workflow.cloudfront_report_stack import CloudFrontReportStack
 from ecs_data_workflow.glue_infra_stack import GlueInfraStack
+from ecs_data_workflow.odk_batch_stack import OdkBatchStack
 
 # instantiate application
 app = cdk.App()
@@ -31,12 +32,18 @@ base_infra = BaseInfrastructureStack(
     env = cdk_default_environment
 )
 
+
 # This is the stack used for cloudfront
 cloudfront_report = CloudFrontReportStack(
     app, "CloudFrontReportStack",
     env = cdk_default_environment
 )
 
+# odk batch for dumping data every 10 mins
+odk_batch = OdkBatchStack(
+    app, "ODKBatchStack",
+    env = cdk_default_environment
+)
 
 # This is the stack used for kenya
 kenya_workflow = KenyaWorkflowStack(
