@@ -142,7 +142,7 @@ class OdkBatchStack(Stack):
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
-            self, "KenyaDataPipeline",
+            self, "ODKBatch",
             definition = parallel)
         
         #######################################
@@ -152,7 +152,7 @@ class OdkBatchStack(Stack):
         if (os.getenv('PIPELINE_STAGE') == 'production'):
                     # add event rule to run data pipeline for work time at EAT
             update_schedule = events.Rule(
-                self, "KenyaDataPipelineTriggerWorkHoursSchedule",
+                self, "ODKBatchRefreshRate",
                 schedule=events.Schedule.expression("rate(10 minutes)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
