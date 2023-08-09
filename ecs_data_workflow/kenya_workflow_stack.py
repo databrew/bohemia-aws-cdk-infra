@@ -57,7 +57,7 @@ class KenyaWorkflowStack(Stack):
         ecs_role = iam.Role(
             self, "createExecRole",
             assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-            role_name="databrew-ecs-workflow-role")
+        )
 
         # each role has a policy attached to it
         ecs_role.add_to_policy(
@@ -82,49 +82,49 @@ class KenyaWorkflowStack(Stack):
         #######################################
         docker_version = os.getenv("PIPELINE_STAGE")
 
-        #######################################
-        # Step 1: Create Form extraction
-        #######################################
+        # #######################################
+        # # Step 1: Create Form extraction
+        # #######################################
 
-        # create task definition: task definition is the 
-        # set of guidelines being used for ECS to run Docker container
-        # what role you want to use and what is the name use in the console
-        task_definition = ecs.FargateTaskDefinition(
-            self,
-            "create-form-extraction-task-definition",
-            execution_role=ecs_role,
-            task_role=ecs_role,
-            family='odk-form-extraction',  
-        )
+        # # create task definition: task definition is the 
+        # # set of guidelines being used for ECS to run Docker container
+        # # what role you want to use and what is the name use in the console
+        # task_definition = ecs.FargateTaskDefinition(
+        #     self,
+        #     "create-form-extraction-task-definition",
+        #     execution_role=ecs_role,
+        #     task_role=ecs_role,
+        #     family='odk-form-extraction',  
+        # )
 
-        # this is the dockerhub image that points to dockerhub
-        dockerhub_image = f'databrewllc/odk-form-extraction:{docker_version}'
+        # # this is the dockerhub image that points to dockerhub
+        # dockerhub_image = f'databrewllc/odk-form-extraction:{docker_version}'
 
-        # attach the container to the task definition
-        container_definition = task_definition.add_container(
-            "task-extraction",
-            image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
-        )
+        # # attach the container to the task definition
+        # container_definition = task_definition.add_container(
+        #     "task-extraction",
+        #     image=ecs.ContainerImage.from_registry(dockerhub_image),
+        #     logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
+        # )
 
-        # placeholder runner of the ecs task
-        # on when the ecs is being executed
-        # gives information on which cluster to run,
-        # what is the task definition, container to use, bucket prefix
-        # where to fetch the odk credentials in AWS
-        form_extraction = tasks.EcsRunTask(    
-            self, "ODKFormExtractionJob",
-            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
-            cluster=cluster,
-            task_definition=task_definition,
-            assign_public_ip=True,
-            container_overrides=[
-                tasks.ContainerOverride(
-                    container_definition=container_definition,
-                    environment= environment_variables
-            )],
-            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
-        )
+        # # placeholder runner of the ecs task
+        # # on when the ecs is being executed
+        # # gives information on which cluster to run,
+        # # what is the task definition, container to use, bucket prefix
+        # # where to fetch the odk credentials in AWS
+        # form_extraction = tasks.EcsRunTask(    
+        #     self, "ODKFormExtractionJob",
+        #     integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+        #     cluster=cluster,
+        #     task_definition=task_definition,
+        #     assign_public_ip=True,
+        #     container_overrides=[
+        #         tasks.ContainerOverride(
+        #             container_definition=container_definition,
+        #             environment= environment_variables
+        #     )],
+        #     launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        # )
 
         #######################################
         # Step 2: Anomaly Detection / Data Cleaning
@@ -257,7 +257,7 @@ class KenyaWorkflowStack(Stack):
         success_trigger = sfn.Succeed(self, "Don't worry be happy")
 
         # extract and clean
-        extract_clean_pipeline = form_extraction.next(cleaning_pipeline)
+        extract_clean_pipeline = cleaning_pipeline
         extract_clean_fail_trigger = sfn.Fail(self, "Notify Failure in extract and cleaning!")
         
         extract_clean_parallel = sfn.Parallel(
