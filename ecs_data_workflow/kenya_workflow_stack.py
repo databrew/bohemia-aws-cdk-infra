@@ -290,18 +290,19 @@ class KenyaWorkflowStack(Stack):
         # Eventbridge
         #######################################
 
-        # add event rule to run data pipeline for work time at EAT
-        hourly_schedule = events.Rule(
-            self, "KenyaDataPipelineTriggerWorkHoursSchedule",
-            schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
-            targets=[targets.SfnStateMachine(state_machine)]
-        )
+        if (os.getenv('PIPELINE_STAGE') == 'production'):
+            # add event rule to run data pipeline for work time at EAT
+            hourly_schedule = events.Rule(
+                self, "KenyaDataPipelineTriggerWorkHoursSchedule",
+                schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
+                targets=[targets.SfnStateMachine(state_machine)]
+            )
 
-        # add event rule to run at midnight EAT timezone
-        midnight_schedule = events.Rule(
-            self, "KenyaDataPipelineTriggerMidnightSchedule",
-            schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
-            targets=[targets.SfnStateMachine(state_machine)]
-        )
+            # add event rule to run at midnight EAT timezone
+            midnight_schedule = events.Rule(
+                self, "KenyaDataPipelineTriggerMidnightSchedule",
+                schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
+                targets=[targets.SfnStateMachine(state_machine)]
+            )
 
         cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)

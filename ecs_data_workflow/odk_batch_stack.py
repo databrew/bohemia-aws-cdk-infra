@@ -50,7 +50,7 @@ class OdkBatchStack(Stack):
         ecs_role = iam.Role(
             self, "createExecRole",
             assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com")
-        )
+     )
 
         # each role has a policy attached to it
         ecs_role.add_to_policy(
@@ -142,19 +142,19 @@ class OdkBatchStack(Stack):
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
-            self, "ODKBatch",
+            self, "KenyaDataPipeline",
             definition = parallel)
         
         #######################################
         # Eventbridge
         #######################################
-
-        # add event rule to run data pipeline for work time at EAT
-        update_schedule = events.Rule(
-            self, "ODKBatchRefreshRate",
-            schedule=events.Schedule.expression("rate(10 minutes)"),
-            targets=[targets.SfnStateMachine(state_machine)]
-        )
-
+        # create scheduler if it is production
+        if (os.getenv('PIPELINE_STAGE') == 'production'):
+                    # add event rule to run data pipeline for work time at EAT
+            update_schedule = events.Rule(
+                self, "KenyaDataPipelineTriggerWorkHoursSchedule",
+                schedule=events.Schedule.expression("rate(10 minutes)"),
+                targets=[targets.SfnStateMachine(state_machine)]
+            )
 
         cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)
