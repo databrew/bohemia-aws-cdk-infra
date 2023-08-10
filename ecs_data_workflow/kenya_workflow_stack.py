@@ -82,93 +82,6 @@ class KenyaWorkflowStack(Stack):
         #######################################
         docker_version = os.getenv("PIPELINE_STAGE")
 
-        # #######################################
-        # # Step 1: Create Form extraction
-        # #######################################
-
-        # # create task definition: task definition is the 
-        # # set of guidelines being used for ECS to run Docker container
-        # # what role you want to use and what is the name use in the console
-        # task_definition = ecs.FargateTaskDefinition(
-        #     self,
-        #     "create-form-extraction-task-definition",
-        #     execution_role=ecs_role,
-        #     task_role=ecs_role,
-        #     family='odk-form-extraction',  
-        # )
-
-        # # this is the dockerhub image that points to dockerhub
-        # dockerhub_image = f'databrewllc/odk-form-extraction:{docker_version}'
-
-        # # attach the container to the task definition
-        # container_definition = task_definition.add_container(
-        #     "task-extraction",
-        #     image=ecs.ContainerImage.from_registry(dockerhub_image),
-        #     logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
-        # )
-
-        # # placeholder runner of the ecs task
-        # # on when the ecs is being executed
-        # # gives information on which cluster to run,
-        # # what is the task definition, container to use, bucket prefix
-        # # where to fetch the odk credentials in AWS
-        # form_extraction = tasks.EcsRunTask(    
-        #     self, "ODKFormExtractionJob",
-        #     integration_pattern=sfn.IntegrationPattern.RUN_JOB,
-        #     cluster=cluster,
-        #     task_definition=task_definition,
-        #     assign_public_ip=True,
-        #     container_overrides=[
-        #         tasks.ContainerOverride(
-        #             container_definition=container_definition,
-        #             environment= environment_variables
-        #     )],
-        #     launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
-        # )
-
-        #######################################
-        # Step 2: Anomaly Detection / Data Cleaning
-        #######################################
-
-        # create task definition: task definition is the 
-        # set of guidelines being used for ECS to run Docker container
-        # what role you want to use and what is the name use in the console
-        task_definition = ecs.FargateTaskDefinition(
-            self,
-            "create-pipeline-cleaning-task-definition",
-            execution_role=ecs_role,
-            task_role=ecs_role,
-            family='pipeline-cleaning',  
-        )
-
-        # this is the dockerhub image that points to dockerhub
-        dockerhub_image = f'databrewllc/pipeline-cleaning:{docker_version}'
-
-        # attach the container to the task definition
-        container_definition = task_definition.add_container(
-            "pipeline-cleaning-containter",
-            image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
-        )
-
-        # placeholder runner of the ecs task
-        # on when the ecs is being executed
-        # gives information on which cluster to run,
-        # what is the task definition, container to use, bucket prefix
-        # where to fetch the odk credentials in AWS
-        cleaning_pipeline = tasks.EcsRunTask(    
-            self, "DataCleaningJob",
-            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
-            cluster=cluster,
-            task_definition=task_definition,
-            assign_public_ip=True,
-            container_overrides=[
-                tasks.ContainerOverride(
-                    container_definition=container_definition,
-                    environment= environment_variables
-            )],
-            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
-        )
 
         #######################################
         # Step 3a: Placeholder Create Ento Pipeline
@@ -256,18 +169,6 @@ class KenyaWorkflowStack(Stack):
         # success object
         success_trigger = sfn.Succeed(self, "Don't worry be happy")
 
-        # extract and clean
-        extract_clean_pipeline = cleaning_pipeline
-        extract_clean_fail_trigger = sfn.Fail(self, "Notify Failure in extract and cleaning!")
-        
-        extract_clean_parallel = sfn.Parallel(
-            self, 
-            'Extract and Clean',
-        )
-        extract_clean_parallel.branch(extract_clean_pipeline)
-        extract_clean_parallel.add_catch(extract_clean_fail_trigger)
-
-
         # reporting parallels
         reporting_fail_trigger = sfn.Fail(self, "Notify Failure in reporting!")
         reporting_parallel = sfn.Parallel(
@@ -277,9 +178,8 @@ class KenyaWorkflowStack(Stack):
         reporting_parallel.branch(ento_pipeline)
         reporting_parallel.branch(se_pipeline)
         reporting_parallel.add_catch(reporting_fail_trigger)
-        
 
-        parallel = extract_clean_parallel.next(reporting_parallel).next(success_trigger)
+        parallel = (reporting_parallel).next(success_trigger)
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
