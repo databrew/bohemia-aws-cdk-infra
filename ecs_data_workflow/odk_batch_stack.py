@@ -118,6 +118,51 @@ class OdkBatchStack(Stack):
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
+
+        ##############################################################################
+        # Step 2: Anomaly Detection / Data Cleaning
+        ##############################################################################
+
+        # create task definition: task definition is the 
+        # set of guidelines being used for ECS to run Docker container
+        # what role you want to use and what is the name use in the console
+        task_definition = ecs.FargateTaskDefinition(
+            self,
+            "create-pipeline-cleaning-task-definition",
+            execution_role=ecs_role,
+            task_role=ecs_role,
+            family='pipeline-cleaning',  
+        )
+
+        # this is the dockerhub image that points to dockerhub
+        dockerhub_image = f'databrewllc/pipeline-cleaning:{docker_version}'
+
+        # attach the container to the task definition
+        container_definition = task_definition.add_container(
+            "pipeline-cleaning-containter",
+            image=ecs.ContainerImage.from_registry(dockerhub_image),
+            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs")
+        )
+
+        # placeholder runner of the ecs task
+        # on when the ecs is being executed
+        # gives information on which cluster to run,
+        # what is the task definition, container to use, bucket prefix
+        # where to fetch the odk credentials in AWS
+        cleaning_pipeline = tasks.EcsRunTask(    
+            self, "DataCleaningJob",
+            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
+            cluster=cluster,
+            task_definition=task_definition,
+            assign_public_ip=True,
+            container_overrides=[
+                tasks.ContainerOverride(
+                    container_definition=container_definition,
+                    environment= environment_variables
+            )],
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+        )
+
         #######################################
         # Step Functions
         #######################################
@@ -126,19 +171,16 @@ class OdkBatchStack(Stack):
         success_trigger = sfn.Succeed(self, "ODK Batch Pull Success")
 
         # extract and clean
-        extract_odk_pipeline = form_extraction
-        extract_odk_fail_trigger = sfn.Fail(self, "Notify Failure in ODK Extraction!")
+        pipeline = form_extraction.next(cleaning_pipeline)
+        fail_trigger = sfn.Fail(self, "Notify Failure in ODK Extraction!")
         
-        extract_clean_parallel = sfn.Parallel(
+        extract_parallel = sfn.Parallel(
             self, 
             'ODK Batch Data Pull',
         )
-        extract_clean_parallel.branch(extract_odk_pipeline)
-        extract_clean_parallel.add_catch(extract_odk_fail_trigger)
-
-        
-
-        parallel = extract_clean_parallel.next(success_trigger)
+        extract_parallel.branch(pipeline)
+        extract_parallel.add_catch(fail_trigger)
+        parallel = extract_parallel.next(success_trigger)
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
@@ -153,7 +195,7 @@ class OdkBatchStack(Stack):
                     # add event rule to run data pipeline for work time at EAT
             update_schedule = events.Rule(
                 self, "ODKBatchRefreshRate",
-                schedule=events.Schedule.expression("rate(10 minutes)"),
+                schedule=events.Schedule.expression("rate(15 minutes)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
