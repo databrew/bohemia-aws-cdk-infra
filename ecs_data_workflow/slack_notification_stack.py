@@ -38,8 +38,7 @@ class SlackNotificationStack(Stack):
             entry = "./lambda",
             index = 'sf_to_sqs.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_11,
-            code=_lambda.Code.from_asset("lambda/sf_to_sqs.py"),
+            runtime=_lambda.Runtime.PYTHON_3_11
         )
 
         # # Lambda Function 2
