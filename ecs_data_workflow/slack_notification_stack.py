@@ -16,6 +16,10 @@ class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         
+        msg_queue = sqs.Queue(
+            self, 'SlackMessages'
+        )
+
         # Lambda Function 1
         sf_to_sqs_func  = lambda_alpha_.PythonFunction(
             self,
@@ -23,7 +27,10 @@ class SlackNotificationStack(Stack):
             entry = "./lambda/sf_to_sqs",
             index = 'sf_to_sqs.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_11
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            environment= {
+                'QUEUE_URL': msg_queue.queue_url
+            }
         )
 
         # Lambda Function 2
@@ -33,7 +40,7 @@ class SlackNotificationStack(Stack):
             entry = "./lambda/send_to_slack",
             index = 'send_to_slack.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_11
+            runtime=_lambda.Runtime.PYTHON_3_11,
         )
 
         event_rule = events.Rule(

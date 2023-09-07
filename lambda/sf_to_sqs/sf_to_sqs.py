@@ -1,4 +1,5 @@
 import boto3
+import os
 
 def get_sf_history(event):
     client = boto3.client('stepfunctions') # Connect to Step Functions Client
@@ -113,8 +114,7 @@ def build_slack_message(name, event_type, statemachinename, lastexecutionarn, aw
 
 def send_message_to_sqs(aws_account_id, aws_region, block):
     sqs = boto3.client('sqs')
-    sqs_name = 'SlackNotificationsQueue'
-    queue_url = f'https://sqs.{aws_region}.amazonaws.com/{aws_account_id}/{sqs_name}'
+    queue_url = os.getenv('QUEUE_URL')
     # Send message to SQS queue
     response = sqs.send_message(
         QueueUrl=queue_url,
