@@ -39,7 +39,6 @@ class SlackNotificationStack(Stack):
             index = 'sf_to_sqs.py',
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="sf_to_sqs.handler",  # Modify the handler based on your script structure
             code=_lambda.Code.from_asset("lambda/sf_to_sqs.py"),
         )
 
