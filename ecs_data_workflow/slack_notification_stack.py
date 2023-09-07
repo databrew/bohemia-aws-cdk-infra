@@ -35,7 +35,7 @@ class SlackNotificationStack(Stack):
         sf_to_sqs_func  = _lambda.Function(
             self,
             "LambdaFunction1",
-            runtime=_lambda.Runtime.PYTHON_3_11,
+            runtime=_lambda.Runtime.PYTHON_3_6,
             handler="sf_to_sqs.handler",  # Modify the handler based on your script structure
             code=_lambda.Code.from_asset("lambda/sf_to_sqs.py"),
         )
@@ -44,7 +44,7 @@ class SlackNotificationStack(Stack):
         send_to_slack_func = _lambda.Function(
             self,
             "LambdaFunction2",
-            runtime=_lambda.Runtime.PYTHON_3_11,
+            runtime=_lambda.Runtime.PYTHON_3_6,
             handler="send_to_slack.handler",  # Modify the handler based on your script structure
             code=_lambda.Code.from_asset("lambda/send_to_slack.py"),
         )
