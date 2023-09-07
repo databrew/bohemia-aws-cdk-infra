@@ -6,31 +6,16 @@ from aws_cdk import (
     aws_lambda as _lambda,
     CfnOutput,
     aws_lambda_python_alpha as lambda_alpha_,
+    aws_sqs as sqs,
+    aws_events as events,
+    aws_events_targets as targets
 )
 from constructs import Construct
 
 class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        # output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting"
-        # bucket = s3.Bucket(
-        #     self, "CFBucket",
-        #     bucket_name= output_bucket_name,
-        #     versioned=True,
-        #     encryption=s3.BucketEncryption.S3_MANAGED
-        # )
-
-        # distribution = cloudfront.Distribution(
-        #     self, "CfDistribution",
-        #     default_root_object= 'index.html',
-        #     default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket))
-        # )
-
-        # cdk.CfnOutput(self, "BucketArn", value=bucket.bucket_arn)
-        # cdk.CfnOutput(self, "DistributionURL", value=distribution.distribution_domain_name)
-        # cdk.CfnOutput(self, "DistributionID", 
-        #               value=distribution.distribution_id,
-        #               export_name='cf-distribution-id')
+        
         # Lambda Function 1
         sf_to_sqs_func  = lambda_alpha_.PythonFunction(
             self,
@@ -50,4 +35,27 @@ class SlackNotificationStack(Stack):
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_11
         )
+
+        event_rule = events.Rule(
+                self, 
+                "SendToSlackRule",
+                event_pattern=events.EventPattern(
+                detail={
+                    "status": ["FAILED"],
+                    "stateMachineArn": ["arn:aws:states:us-east-1:381386504386:stateMachine:MyStateMachine-88nrpzlrn"]
+                },
+                detail_type=["Step Functions Execution Status Change"],
+
+                # If you prefer, you can use a low level array of strings, as directly consumed by EventBridge
+                source=["aws.states"],
+                region='us-east-1'
+            )
+        )
+
+        # add new rule to target
+        event_rule.add_target(
+            targets.LambdaFunction(sf_to_sqs_func)
+        )
+
+
 
