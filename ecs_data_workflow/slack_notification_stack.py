@@ -37,18 +37,15 @@ class SlackNotificationStack(Stack):
         )
 
         event_rule = events.Rule(
-                self, 
-                "SendToSlackRule",
-                event_pattern=events.EventPattern(
+            self, 
+            "SendToSlackRule",
+            event_pattern=events.EventPattern(
                 detail={
                     "status": ["FAILED"],
                     "stateMachineArn": ["arn:aws:states:us-east-1:381386504386:stateMachine:MyStateMachine-88nrpzlrn"]
                 },
                 detail_type=["Step Functions Execution Status Change"],
-
-                # If you prefer, you can use a low level array of strings, as directly consumed by EventBridge
-                source=["aws.states"],
-                region='us-east-1'
+                source=["aws.states"]
             )
         )
 
