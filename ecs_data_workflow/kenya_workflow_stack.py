@@ -21,7 +21,8 @@ from aws_cdk import (
     aws_stepfunctions_tasks as tasks,
     aws_stepfunctions as sfn,
     aws_events as events,
-    aws_events_targets as targets
+    aws_events_targets as targets,
+    Fn
 )
 from constructs import Construct
 
@@ -182,7 +183,7 @@ class KenyaWorkflowStack(Stack):
         parallel = (reporting_parallel).next(success_trigger)
 
         # consolidate into state machines
-        state_machine = sfn.StateMachine(
+        self.state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
             definition = parallel)
         
@@ -195,14 +196,14 @@ class KenyaWorkflowStack(Stack):
             hourly_schedule = events.Rule(
                 self, "KenyaDataPipelineTriggerWorkHoursSchedule",
                 schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
-                targets=[targets.SfnStateMachine(state_machine)]
+                targets=[targets.SfnStateMachine(self.state_machine)]
             )
 
             # add event rule to run at midnight EAT timezone
             midnight_schedule = events.Rule(
                 self, "KenyaDataPipelineTriggerMidnightSchedule",
                 schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
-                targets=[targets.SfnStateMachine(state_machine)]
+                targets=[targets.SfnStateMachine(self.state_machine)]
             )
 
-        cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)
+        cdk.CfnOutput(self, "StepFunctionName", value=self.state_machine.state_machine_arn)
