@@ -207,6 +207,5 @@ class KenyaWorkflowStack(Stack):
             )
 
         cdk.CfnOutput(self, 
-                      "StepFunctionName", 
-                      value=state_machine.state_machine_arn,
-                      export_name='ReportingStepFunction')
+                      'ReportingStepFunction', 
+                      value=state_machine.state_machine_arn)
