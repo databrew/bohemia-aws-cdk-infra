@@ -9,13 +9,37 @@ from aws_cdk import (
     aws_sqs as sqs,
     aws_events as events,
     aws_events_targets as targets, 
-    aws_lambda_event_sources as event_sources
+    aws_lambda_event_sources as event_sources,
+    aws_iam as iam
 )
 from constructs import Construct
 
 class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
+
+
+        exec_role = iam.Role(
+            self, "SlackNotificationExecRole",
+            assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),
+        )
+
+        # each role has a policy attached to it
+        exec_role.add_to_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                resources=["*"],
+                actions=[
+                    "sqs:*",
+                    "states:ListStateMachines",
+                    "states:ListActivities",
+                    "states:DescribeStateMachine",
+                    "states:DescribeStateMachineForExecution",
+                    "states:ListExecutions",
+                    "states:DescribeExecution",
+                    "states:GetExecutionHistory",
+                    "states:DescribeActivity",
+                ]))
         
         msg_queue = sqs.Queue(
             self, 'SlackMessages'
@@ -33,7 +57,8 @@ class SlackNotificationStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_11,
             environment= {
                 'QUEUE_URL': msg_queue.queue_url
-            }
+            },  
+            role= exec_role
         )
 
         # Lambda Function for sending messages to Slack
@@ -44,6 +69,7 @@ class SlackNotificationStack(Stack):
             index = 'send_to_slack.py',
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_11,
+            role = exec_role
         )
 
         event_rule = events.Rule(
