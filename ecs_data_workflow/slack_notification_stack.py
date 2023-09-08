@@ -32,8 +32,7 @@ class SlackNotificationStack(Stack):
                 actions=[
                     "sqs:*",
                     "kms:Decrypt",
-                    "ssm:GetParameter",
-                    "ssm:GetParameters",
+                    "ssm:*",
                     "states:ListStateMachines",
                     "states:ListActivities",
                     "states:DescribeStateMachine",
