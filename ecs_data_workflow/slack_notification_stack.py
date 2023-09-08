@@ -16,8 +16,7 @@ from constructs import Construct
 
 class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, state_machine_arns = None) -> None:
-        super().__init__(scope, id, state_machine_arns = state_machine_arns)
-
+        super().__init__(scope, id)
 
         exec_role = iam.Role(
             self, "SlackNotificationExecRole",
@@ -82,7 +81,7 @@ class SlackNotificationStack(Stack):
             event_pattern=events.EventPattern(
                 detail={
                     "status": ["FAILED"],
-                    "stateMachineArn": ["arn:aws:states:us-east-1:381386504386:stateMachine:MyStateMachine-88nrpzlrn"]
+                    "stateMachineArn": state_machine_arns
                 },
                 detail_type=["Step Functions Execution Status Change"],
                 source=["aws.states"]
