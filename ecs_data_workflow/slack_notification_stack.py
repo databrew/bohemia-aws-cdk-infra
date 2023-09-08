@@ -8,7 +8,8 @@ from aws_cdk import (
     aws_lambda_python_alpha as lambda_alpha_,
     aws_sqs as sqs,
     aws_events as events,
-    aws_events_targets as targets
+    aws_events_targets as targets, 
+    aws_lambda_event_sources as event_sources
 )
 from constructs import Construct
 
@@ -20,7 +21,9 @@ class SlackNotificationStack(Stack):
             self, 'SlackMessages'
         )
 
-        # Lambda Function 1
+        sqs_event_source = event_sources.SqsEventSource(msg_queue)
+
+        # Lambda Function to capture step function results to SQS
         sf_to_sqs_func  = lambda_alpha_.PythonFunction(
             self,
             "StepFuncToSQS",
@@ -33,7 +36,7 @@ class SlackNotificationStack(Stack):
             }
         )
 
-        # Lambda Function 2
+        # Lambda Function for sending messages to Slack
         send_to_slack_func = lambda_alpha_.PythonFunction(
             self,
             "SendToSlack",
@@ -59,6 +62,11 @@ class SlackNotificationStack(Stack):
         # add new rule to target
         event_rule.add_target(
             targets.LambdaFunction(sf_to_sqs_func)
+        )
+
+        # send to slack event source
+        send_to_slack_func.add_event_source(
+            sqs_event_source
         )
 
 
