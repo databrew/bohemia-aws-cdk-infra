@@ -17,7 +17,7 @@ from constructs import Construct
 class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        
+
         exec_role = iam.Role(
             self, "SlackNotificationExecRole",
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -76,8 +76,7 @@ class SlackNotificationStack(Stack):
         )
 
         state_machine_arns = [
-            cdk.Fn.import_value('ReportingStepFunction'),
-            cdk.Fn.import_value('ODKBatchStepFunction')
+            cdk.Fn.import_value('reporting:arn')
         ]
         event_rule = events.Rule(
             self, 

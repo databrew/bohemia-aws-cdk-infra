@@ -199,5 +199,7 @@ class OdkBatchStack(Stack):
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
+
         cdk.CfnOutput(self, 'ODKBatchStepFunction', 
-                      value=state_machine.state_machine_arn)
+                      value=state_machine.state_machine_arn,
+                      export_name='odkbatch:arn')
