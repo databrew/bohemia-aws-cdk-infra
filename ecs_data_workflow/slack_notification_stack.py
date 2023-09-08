@@ -15,9 +15,9 @@ from aws_cdk import (
 from constructs import Construct
 
 class SlackNotificationStack(Stack):
-    def __init__(self, scope: Construct, id: str, state_machine_arns = None) -> None:
-        super().__init__(scope, id)
-
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+        
         exec_role = iam.Role(
             self, "SlackNotificationExecRole",
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -75,6 +75,10 @@ class SlackNotificationStack(Stack):
             role = exec_role
         )
 
+        state_machine_arns = [
+            cdk.Fn.import_value('ReportingStepFunction'),
+            cdk.Fn.import_value('ODKBatchStepFunction')
+        ]
         event_rule = events.Rule(
             self, 
             "SendToSlackRule",

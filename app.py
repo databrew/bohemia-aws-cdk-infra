@@ -64,10 +64,7 @@ glue_db = GlueInfraStack(
 # this is slack notification
 slack_notification = SlackNotificationStack(
     app, 
-    "SlackNotificationStack",
-    state_machine_arns=[cdk.Fn.import_value('ReportingStepFunction'),
-                        cdk.Fn.import_value('ODKBatchStepFunction')]
-    
+    "SlackNotificationStack"
 )
 
 
