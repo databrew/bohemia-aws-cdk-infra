@@ -65,7 +65,7 @@ glue_db = GlueInfraStack(
 slack_notification = SlackNotificationStack(
     app, 
     "SlackNotificationStack"
-)
+).add_dependency(kenya_workflow)
 
 
 # synthesize to cloudformation
