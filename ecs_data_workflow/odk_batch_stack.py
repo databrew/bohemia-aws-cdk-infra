@@ -183,9 +183,11 @@ class OdkBatchStack(Stack):
         parallel = extract_parallel.next(success_trigger)
 
         # consolidate into state machines
-        self.state_machine = sfn.StateMachine(
+        state_machine = sfn.StateMachine(
             self, "ODKBatch",
             definition = parallel)
+        
+        self.output_state_machine_arn = state_machine.state_machine_arn
         
         #######################################
         # Eventbridge
@@ -196,7 +198,7 @@ class OdkBatchStack(Stack):
             update_schedule = events.Rule(
                 self, "ODKBatchRefreshRate",
                 schedule=events.Schedule.expression("rate(15 minutes)"),
-                targets=[targets.SfnStateMachine(self.state_machine)]
+                targets=[targets.SfnStateMachine(state_machine)]
             )
 
-        cdk.CfnOutput(self, "StepFunctionName", value=self.state_machine.state_machine_arn)
+        cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)

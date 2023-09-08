@@ -183,9 +183,11 @@ class KenyaWorkflowStack(Stack):
         parallel = (reporting_parallel).next(success_trigger)
 
         # consolidate into state machines
-        self.state_machine = sfn.StateMachine(
+        state_machine = sfn.StateMachine(
             self, "KenyaDataPipeline",
             definition = parallel)
+        
+        self.output_state_machine_arn = state_machine.state_machine_arn
         
         #######################################
         # Eventbridge
@@ -196,14 +198,14 @@ class KenyaWorkflowStack(Stack):
             hourly_schedule = events.Rule(
                 self, "KenyaDataPipelineTriggerWorkHoursSchedule",
                 schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
-                targets=[targets.SfnStateMachine(self.state_machine)]
+                targets=[targets.SfnStateMachine(state_machine)]
             )
 
             # add event rule to run at midnight EAT timezone
             midnight_schedule = events.Rule(
                 self, "KenyaDataPipelineTriggerMidnightSchedule",
                 schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
-                targets=[targets.SfnStateMachine(self.state_machine)]
+                targets=[targets.SfnStateMachine(state_machine)]
             )
 
-        cdk.CfnOutput(self, "StepFunctionName", value=self.state_machine.state_machine_arn)
+        cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)
