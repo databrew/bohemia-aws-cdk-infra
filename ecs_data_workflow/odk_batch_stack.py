@@ -187,8 +187,6 @@ class OdkBatchStack(Stack):
             self, "ODKBatch",
             definition = parallel)
         
-        self.output_state_machine_arn = state_machine.state_machine_arn
-        
         #######################################
         # Eventbridge
         #######################################
@@ -201,4 +199,6 @@ class OdkBatchStack(Stack):
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
-        cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)
+        cdk.CfnOutput(self, "StepFunctionName", 
+                      value=state_machine.state_machine_arn,
+                      export_name='ODKBatchStepFunction')
