@@ -63,10 +63,9 @@ glue_db = GlueInfraStack(
 
 # this is slack notification
 slack_notification = SlackNotificationStack(
-    app, "SlackNotificationStack",
-    state_machine_arns=[
-        kenya_workflow.state_machine.state_machine_arn,
-        odk_batch.state_machine.state_machine_arn]
+    app, 
+    "SlackNotificationStack",
+    state_machine_arns=[kenya_workflow.state_machine.state_machine_arn,odk_batch.state_machine.state_machine_arn]
     
 )
 

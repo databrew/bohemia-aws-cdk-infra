@@ -16,7 +16,7 @@ from constructs import Construct
 
 class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, state_machine_arns = None) -> None:
-        super().__init__(scope, id, state_machine_arns)
+        super().__init__(scope, id, state_machine_arns = state_machine_arns)
 
 
         exec_role = iam.Role(
