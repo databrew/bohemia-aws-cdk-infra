@@ -76,6 +76,7 @@ class SlackNotificationStack(Stack):
         )
 
         state_machine_arns = [
+            cdk.Fn.import_value('odkbatch:arn'),
             cdk.Fn.import_value('reporting:arn')
         ]
         event_rule = events.Rule(

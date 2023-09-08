@@ -65,7 +65,11 @@ glue_db = GlueInfraStack(
 slack_notification = SlackNotificationStack(
     app, 
     "SlackNotificationStack"
-).add_dependency(kenya_workflow)
+)
+
+# serial deps to prevent locking between stack creation
+kenya_workflow.add_dependency(odk_batch)
+slack_notification.add_dependency(kenya_workflow)
 
 
 # synthesize to cloudformation
