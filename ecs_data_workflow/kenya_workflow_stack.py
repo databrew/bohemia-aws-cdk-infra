@@ -21,7 +21,8 @@ from aws_cdk import (
     aws_stepfunctions_tasks as tasks,
     aws_stepfunctions as sfn,
     aws_events as events,
-    aws_events_targets as targets
+    aws_events_targets as targets,
+    Fn
 )
 from constructs import Construct
 
@@ -205,4 +206,7 @@ class KenyaWorkflowStack(Stack):
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
-        cdk.CfnOutput(self, "StepFunctionName", value=state_machine.state_machine_arn)
+        cdk.CfnOutput(self, 
+                      'ReportingStepFunction', 
+                      value=state_machine.state_machine_arn,
+                      export_name='reporting:arn')

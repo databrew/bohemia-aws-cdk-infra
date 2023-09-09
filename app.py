@@ -14,6 +14,7 @@ from ecs_data_workflow.kenya_workflow_stack import KenyaWorkflowStack
 from ecs_data_workflow.cloudfront_report_stack import CloudFrontReportStack
 from ecs_data_workflow.glue_infra_stack import GlueInfraStack
 from ecs_data_workflow.odk_batch_stack import OdkBatchStack
+from ecs_data_workflow.slack_notification_stack import SlackNotificationStack
 
 # instantiate application
 app = cdk.App()
@@ -31,7 +32,6 @@ base_infra = BaseInfrastructureStack(
     app, "BaseInfraStructureStack",
     env = cdk_default_environment
 )
-
 
 # This is the stack used for cloudfront
 cloudfront_report = CloudFrontReportStack(
@@ -60,6 +60,17 @@ glue_db = GlueInfraStack(
     app, "GlueInfraStack",
     env = cdk_default_environment,
 )
+
+# this is slack notification
+slack_notification = SlackNotificationStack(
+    app, 
+    "SlackNotificationStack"
+)
+
+# serial deps to prevent locking between stack creation
+kenya_workflow.add_dependency(odk_batch)
+slack_notification.add_dependency(kenya_workflow)
+
 
 # synthesize to cloudformation
 app.synth()
