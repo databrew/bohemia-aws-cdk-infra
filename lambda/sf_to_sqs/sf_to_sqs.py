@@ -3,33 +3,32 @@ import os
 
 def get_sf_history(event):
     client = boto3.client('stepfunctions') # Connect to Step Functions Client
-
     lastexecutionarn = event['detail']['executionArn']
     statemachinename = lastexecutionarn.split(':')[-2]
-
     response = client.get_execution_history(
     executionArn=lastexecutionarn, maxResults=300)
 
+    # initial temp storage
     name = []
-    prev_id = []
     event_type = []
     start_time = ''
     end_time = ''
+    curr_state = ''
 
+    # parse through events
     for event in response['events']:
+        if 'stateEnteredEventDetails' in event.keys():
+            curr_state = event['stateEnteredEventDetails']['name']
         if event['type'] == 'ExecutionStarted':
             start_time = event['timestamp'].strftime('%d-%m-%Y %H:%M:%S') # Get the start time for the step functions execution
-        if event['type'] == 'TaskStateExited':
-            name.append(event['stateExitedEventDetails']['name']) # Get the name of the task run
-            prev_id.append(event['previousEventId']) # Get the id of the previous event
-        if event['type'] == 'ExecutionSucceeded':
+        if event['type'] in 'TaskSucceeded':
+            name.append(curr_state) # Get the name of the task run
+            event_type.append('Succeeded') # Get the id of the previous event
+        if event['type'] in 'TaskFailed':
+            name.append(curr_state) # Get the name of the task run
+            event_type.append('Failed') # Get the id of the previous event
+        if event['type'] in ['ExecutionSucceeded', 'ExecutionFailed']:
             end_time = event['timestamp'].strftime('%d-%m-%Y %H:%M:%S') # Get the end time for the step functions execution
-
-    if prev_id != []:
-        for event in response['events']:
-            for id in prev_id:
-                if event['id'] == id:
-                    event_type.append(event['type']) # With the previous event id get the type of event (Expected Types: Lambda function: LambdaFunctionSucceeded or LambdaFunctionFailed, ECS Task: TaskSucceeded or TaskFailed)
 
     return statemachinename, lastexecutionarn, start_time, name, end_time, event_type
 
