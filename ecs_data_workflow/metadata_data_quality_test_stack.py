@@ -72,14 +72,15 @@ class MetadataDataQualityStack(Stack):
         )
 
         bucket.add_event_notification(
-            event = s3.EventType.OBJECT_CREATED, 
-            dest = s3n.LambdaDestination(staging_func),
-            filters=[s3.NotificationKeyFilter(prefix="metadata/zip_staging", suffix=".zip")]
+            s3.EventType.OBJECT_CREATED, 
+            s3n.LambdaDestination(staging_func),
+            s3.NotificationKeyFilter(prefix="metadata/zip_staging", 
+                                     suffix=".zip")
         )
 
 
         # Lambda Function for sending messages to Slack
-        staging_func = lambda_alpha_.PythonFunction(
+        promote_func = lambda_alpha_.PythonFunction(
             self,
             "PromoteToProdMetadata",
             entry = "./lambda/metadata_promote_data_to_prod",
@@ -91,9 +92,10 @@ class MetadataDataQualityStack(Stack):
         )
 
         bucket.add_event_notification(
-            event = s3.EventType.OBJECT_CREATED, 
-            dest = s3n.LambdaDestination(staging_func),
-            filters=[s3.NotificationKeyFilter(prefix="metadata/zip_prod", suffix=".zip")]
+            s3.EventType.OBJECT_CREATED, 
+            s3n.LambdaDestination(promote_func),
+            s3.NotificationKeyFilter(prefix="metadata/zip_prod", 
+                                     suffix=".zip")
         )
 
 
