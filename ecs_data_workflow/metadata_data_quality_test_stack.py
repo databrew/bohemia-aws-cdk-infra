@@ -72,9 +72,9 @@ class MetadataDataQualityStack(Stack):
         )
 
         bucket.add_event_notification(
-            s3.EventType.OBJECT_CREATED, 
-            s3n.LambdaDestination(staging_func),
-            prefix="metadata/zip_staging"
+            event = s3.EventType.OBJECT_CREATED, 
+            dest = s3n.LambdaDestination(staging_func),
+            filters=[s3.NotificationKeyFilter(prefix="metadata/zip_staging", suffix=".zip")]
         )
 
 
@@ -91,9 +91,9 @@ class MetadataDataQualityStack(Stack):
         )
 
         bucket.add_event_notification(
-            s3.EventType.OBJECT_CREATED, 
-            s3n.LambdaDestination(staging_func),
-            prefix="metadata/zip_prod"
+            event = s3.EventType.OBJECT_CREATED, 
+            dest = s3n.LambdaDestination(staging_func),
+            filters=[s3.NotificationKeyFilter(prefix="metadata/zip_prod", suffix=".zip")]
         )
 
 
