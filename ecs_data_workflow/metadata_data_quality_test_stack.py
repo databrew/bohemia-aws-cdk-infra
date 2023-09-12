@@ -12,7 +12,8 @@ from aws_cdk import (
     aws_lambda_event_sources as event_sources,
     aws_iam as iam,
     aws_s3 as s3,
-    aws_sam as sam
+    aws_sam as sam,
+    aws_s3_notifications as s3n
 )
 from constructs import Construct
 
@@ -58,17 +59,7 @@ class MetadataDataQualityStack(Stack):
         aws_sdk_pandas_layer_arn = aws_sdk_pandas_layer.get_att("Outputs.WranglerLayer38Arn").to_string()
         aws_sdk_pandas_layer_version = _lambda.LayerVersion.from_layer_version_arn(self, "awssdkpandas-layer-version", aws_sdk_pandas_layer_arn)
 
-        # _lambda.Function(
-        #     self,
-        #     "awssdkpandas-function",
-        #     runtime=_lambda.Runtime.PYTHON_3_8,
-        #     function_name="sample-awssdk-pandas-lambda-function",
-        #     code=_lambda.Code.from_asset("./src/awssdk-pandas-lambda"),
-        #     handler='lambda_function.lambda_handler',
-        #     layers=[aws_sdk_pandas_layer_version]
-        # )
-        
-        # # Lambda Function for sending messages to Slack
+        # Lambda Function for sending messages to Slack
         staging_func = lambda_alpha_.PythonFunction(
             self,
             "StagingMetadata",
@@ -80,32 +71,30 @@ class MetadataDataQualityStack(Stack):
             layers=[aws_sdk_pandas_layer_version]
         )
 
-        # state_machine_arns = [
-        #     cdk.Fn.import_value('odkbatch:arn'),
-        #     cdk.Fn.import_value('reporting:arn')
-        # ]
-        # event_rule = events.Rule(
-        #     self, 
-        #     "SendToSlackRule",
-        #     event_pattern=events.EventPattern(
-        #         detail={
-        #             "status": ["FAILED"],
-        #             "stateMachineArn": state_machine_arns
-        #         },
-        #         detail_type=["Step Functions Execution Status Change"],
-        #         source=["aws.states"]
-        #     )
-        # )
+        bucket.add_event_notification(
+            s3.EventType.OBJECT_CREATED, 
+            s3n.LambdaDestination(staging_func),
+            prefix="metadata/zip_staging"
+        )
 
-        # # add new rule to target
-        # event_rule.add_target(
-        #     targets.LambdaFunction(sf_to_sqs_func)
-        # )
 
-        # # send to slack event source
-        # send_to_slack_func.add_event_source(
-        #     sqs_event_source
-        # )
+        # Lambda Function for sending messages to Slack
+        staging_func = lambda_alpha_.PythonFunction(
+            self,
+            "PromoteToProdMetadata",
+            entry = "./lambda/metadata_promote_data_to_prod",
+            index = 'lambda_function.py',
+            handler = 'lambda_handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            role = exec_role,
+            layers=[aws_sdk_pandas_layer_version]
+        )
+
+        bucket.add_event_notification(
+            s3.EventType.OBJECT_CREATED, 
+            s3n.LambdaDestination(staging_func),
+            prefix="metadata/zip_prod"
+        )
 
 
 
