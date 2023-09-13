@@ -15,6 +15,7 @@ from ecs_data_workflow.cloudfront_report_stack import CloudFrontReportStack
 from ecs_data_workflow.glue_infra_stack import GlueInfraStack
 from ecs_data_workflow.odk_batch_stack import OdkBatchStack
 from ecs_data_workflow.slack_notification_stack import SlackNotificationStack
+from ecs_data_workflow.metadata_data_quality_test_stack import MetadataDataQualityStack
 
 # instantiate application
 app = cdk.App()
@@ -71,6 +72,8 @@ slack_notification = SlackNotificationStack(
 kenya_workflow.add_dependency(odk_batch)
 slack_notification.add_dependency(kenya_workflow)
 
+
+metadata_testing = MetadataDataQualityStack(app, "MetadataDataqualityStack")
 
 # synthesize to cloudformation
 app.synth()
