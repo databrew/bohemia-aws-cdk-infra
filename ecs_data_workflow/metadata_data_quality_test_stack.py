@@ -78,7 +78,7 @@ class MetadataDataQualityStack(Stack):
         staging_func.add_event_source(
             event_sources.S3EventSource(bucket,
                                         events=[s3.EventType.OBJECT_CREATED],
-                                        filters=[s3.NotificationKeyFilter(prefix="metadata/zip_staging/")])
+                                        filters=[s3.NotificationKeyFilter(prefix="zip_staging/")])
         )
 
         # Lambda Function for sending messages to Slack
@@ -100,5 +100,5 @@ class MetadataDataQualityStack(Stack):
         prod_func.add_event_source(
             event_sources.S3EventSource(bucket,
                                         events=[s3.EventType.OBJECT_CREATED],
-                                        filters=[s3.NotificationKeyFilter(prefix="metadata/zip_prod/")])
+                                        filters=[s3.NotificationKeyFilter(prefix="zip_prod/")])
         )
