@@ -71,7 +71,8 @@ class MetadataDataQualityStack(Stack):
             role = exec_role,
             layers=[aws_sdk_pandas_layer_version],
             environment= {
-                'DQ_TEST_BUCKET_NAME': bucket.bucket_name
+                'DQ_TEST_BUCKET_NAME': bucket.bucket_name,
+                'TARGET_BUCKET_NAME': TARGET_BUCKET_NAME
             }
         )
 
