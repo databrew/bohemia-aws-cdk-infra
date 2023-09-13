@@ -41,11 +41,11 @@ class MetadataDataQualityStack(Stack):
                 ]))
 
         # Create bucket object
-        TARGET_BUCKET='bohemia-lake-db'
+        TARGET_BUCKET_NAME='bohemia-lake-db'
         if(os.getenv('PIPELINE_STAGE')):
-            TARGET_BUCKET = 'databrew-testing-' + TARGET_BUCKET
+            TARGET_BUCKET_NAME = 'databrew-testing-' + TARGET_BUCKET_NAME
         
-        bucket = s3.Bucket(self, "MetadataTesting", versioned=True)
+        bucket = s3.Bucket(self, "UNIT-TEST-HERE", versioned=True)
 
 
         aws_sdk_pandas_layer = sam.CfnApplication(
@@ -69,7 +69,10 @@ class MetadataDataQualityStack(Stack):
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
-            layers=[aws_sdk_pandas_layer_version]
+            layers=[aws_sdk_pandas_layer_version],
+            environment= {
+                'DQ_TEST_BUCKET_NAME': bucket.bucket_name
+            }
         )
 
         staging_func.add_event_source(
@@ -87,7 +90,11 @@ class MetadataDataQualityStack(Stack):
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
-            layers=[aws_sdk_pandas_layer_version]
+            layers=[aws_sdk_pandas_layer_version],
+            environment= {
+                'DQ_TEST_BUCKET_NAME': bucket.bucket_name,
+                'TARGET_BUCKET_NAME': TARGET_BUCKET_NAME
+            }
         )
 
         prod_func.add_event_source(

@@ -8,11 +8,8 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-os.environ['PIPELINE_STAGE'] = 'develop'
-BUCKET = 'bohemia-lake-db'
-if (os.getenv('PIPELINE_STAGE')):
-    BUCKET = 'databrew-testing-' + BUCKET
-
+DQ_TEST_BUCKET_NAME = os.getenv('DQ_TEST_BUCKET_NAME')
+TARGET_BUCKET_NAME = os.getenv('TARGET_BUCKET_NAME')
 
 def check_zip_n_content(dir, n_content):
     try:
@@ -46,40 +43,6 @@ def check_zip_file_naming(dir, correct_file_list):
         return output_data
     except Exception as e:
         logger.info('check_zip_n_content functional err: ' + str(e))
-        raise ()
-
-
-def get_most_recent_historical_data(s3path):
-    try:
-        logger.info('historical data fetch for validation')
-        hist = aw.s3.read_csv(s3path, dataset=True)
-        hist['parsed_run_date'] = (pd.to_datetime(hist['run_date']).dt.date)
-        max_hist = hist[hist['parsed_run_date']
-                        == hist['parsed_run_date'].max()]
-        logger.info('successful historical data fetch')
-        return max_hist
-    except Exception as e:
-        logger.info('get_most_recent_historical_data err: ' + str(e))
-        raise ()
-
-
-def get_staging_zipfile(bucket, metadata_type):
-    try:
-        s3client = boto3.client('s3')
-        logger.info('fetching zip file from user')
-        local_zip_folder = f'/tmp/{metadata_type}'
-        local_zip_file_path = f'/tmp/{metadata_type}.zip'
-        s3client.download_file(
-            Bucket=f'{bucket}',
-            Key=f'metadata/zip_staging/{metadata_type}/{metadata_type}.zip',
-            Filename=local_zip_file_path
-        )
-        # Unzip the file
-        with zipfile.ZipFile(local_zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall(local_zip_folder)
-        logger.info('successful zip file fetch')
-    except Exception as e:
-        logger.info('get_staging_zipfile err: ' + str(e))
         raise ()
 
 
@@ -148,7 +111,7 @@ def get_staging_zipfile(bucket, metadata_type):
         local_zip_file_path = f'/tmp/{metadata_type}.zip'
         s3client.download_file(
             Bucket=f'{bucket}',
-            Key=f'metadata/zip_staging/{metadata_type}/{metadata_type}.zip',
+            Key=f'zip_staging/{metadata_type}.zip',
             Filename=local_zip_file_path
         )
         # Unzip the file
@@ -161,12 +124,12 @@ def get_staging_zipfile(bucket, metadata_type):
 
 
 def lambda_handler(event, context):
-    if 'healthecon' in (event['Records'][0]['s3']['object']['key']):
-        INDIVIDUAL_HISTORICAL_S3_URI = 's3://databrew-testing-bohemia-lake-db/metadata/history/healthecon_individual_data/'
-        HOUSEHOLD_HISTORICAL_S3_URI = 's3://databrew-testing-bohemia-lake-db/metadata/history/healthecon_household_data/'
+    if 'healthecon.zip' in (event['Records'][0]['s3']['object']['key']):
+        INDIVIDUAL_HISTORICAL_S3_URI = f's3://{TARGET_BUCKET_NAME}/metadata/healthecon_individual_data_hist/'
+        HOUSEHOLD_HISTORICAL_S3_URI = f's3://{TARGET_BUCKET_NAME}/metadata/healthecon_household_data_hist/'
 
         get_staging_zipfile(
-            bucket=BUCKET,
+            bucket=DQ_TEST_BUCKET_NAME,
             metadata_type='healthecon'
         )
         # ZIP FILE SUBMISSION VALIDATION
@@ -211,4 +174,6 @@ def lambda_handler(event, context):
 
         output_data = pd.DataFrame(pd.concat(data_list))
         aw.s3.to_csv(
-            output_data, path='s3://databrew-testing-bohemia-lake-db/metadata/checks/healthecon-dq-test-results.csv')
+            output_data, 
+            path=f's3://{DQ_TEST_BUCKET_NAME}/checks/healthecon-dq-test-results.csv'
+        )

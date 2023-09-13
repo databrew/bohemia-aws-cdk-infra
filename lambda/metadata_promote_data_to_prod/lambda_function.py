@@ -8,12 +8,11 @@ import awswrangler as aw
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-
-BUCKET='bohemia-lake-db'
-if(os.getenv('PIPELINE_STAGE')):
-    BUCKET = 'databrew-testing-' + BUCKET
 s3client = boto3.client('s3')
+
+DQ_TEST_BUCKET_NAME = os.getenv('DQ_TEST_BUCKET_NAME')
+TARGET_BUCKET_NAME = os.getenv('TARGET_BUCKET_NAME')
+
 
 def get_prod_zipfile(metadata_type):
     try:
@@ -21,8 +20,8 @@ def get_prod_zipfile(metadata_type):
         local_zip_folder = f'/tmp/{metadata_type}'
         local_zip_file_path = f'/tmp/{metadata_type}.zip'
         s3client.download_file(
-            Bucket=f'{BUCKET}',
-            Key = f'metadata/zip_prod/{metadata_type}/{metadata_type}.zip',
+            Bucket=f'{DQ_TEST_BUCKET_NAME}',
+            Key = f'zip_prod/{metadata_type}.zip',
             Filename = local_zip_file_path
         )
         # Unzip the file
@@ -38,11 +37,11 @@ def snapshot_current(metadata_type):
     dir = f'/tmp/{metadata_type}'
     csvs = set(list(filter(lambda f: f.endswith('.csv'), os.listdir(dir))))
     for csv in csvs:
-        output_key = f'metadata/prod/{metadata_type}_{os.path.splitext(csv)[0]}/{csv}'
-        output_key_history = f'metadata/history/{metadata_type}_{os.path.splitext(csv)[0]}/run_date={date.today().strftime("%Y-%m-%d")}/{csv}'
+        output_key = f'{metadata_type}_{os.path.splitext(csv)[0]}/{csv}'
+        output_key_history = f'{metadata_type}_{os.path.splitext(csv)[0]}/run_date={date.today().strftime("%Y-%m-%d")}/{csv}'
         df = pd.read_csv(f'{dir}/{csv}')
-        aw.s3.to_csv(df, f's3://{BUCKET}/{output_key}')
-        aw.s3.to_csv(df, f's3://{BUCKET}/{output_key_history}')
+        aw.s3.to_csv(df, f's3://TARGET_BUCKET_NAME/{output_key}')
+        aw.s3.to_csv(df, f's3://TARGET_BUCKET_NAME/{output_key_history}')
 
 def lambda_handler(event, context):
     s3trigger_loc = event['Records'][0]['s3']['object']['key'].split('/')[2]
