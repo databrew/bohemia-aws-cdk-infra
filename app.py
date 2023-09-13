@@ -16,7 +16,6 @@ from ecs_data_workflow.glue_infra_stack import GlueInfraStack
 from ecs_data_workflow.odk_batch_stack import OdkBatchStack
 from ecs_data_workflow.slack_notification_stack import SlackNotificationStack
 from ecs_data_workflow.metadata_data_quality_test_stack import MetadataDataQualityStack
-from ecs_data_workflow.metadata_data_quality_promote_stack import MetadataDataQualityPromoteStack
 
 # instantiate application
 app = cdk.App()
