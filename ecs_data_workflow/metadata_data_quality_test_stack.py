@@ -71,18 +71,17 @@ class MetadataDataQualityStack(Stack):
             layers=[aws_sdk_pandas_layer_version]
         )
 
-        bucket.add_event_notification(
-            s3.EventType.OBJECT_CREATED, 
-            s3n.LambdaDestination(staging_func),
-            s3.NotificationKeyFilter(prefix="metadata/zip_staging/")
+        staging_func.add_event_source(
+            event_sources.S3EventSource(bucket,
+                                        events=[s3.EventType.OBJECT_CREATED],
+                                        filters=[s3.NotificationKeyFilter(prefix="metadata/zip_staging/")])
         )
 
-
         # Lambda Function for sending messages to Slack
-        promote_func = lambda_alpha_.PythonFunction(
+        prod_func = lambda_alpha_.PythonFunction(
             self,
-            "PromoteToProdMetadata",
-            entry = "./lambda/metadata_promote_data_to_prod",
+            "PromoteMetadata",
+            entry = "./lambda/metadata_data_quality_test",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
@@ -90,11 +89,8 @@ class MetadataDataQualityStack(Stack):
             layers=[aws_sdk_pandas_layer_version]
         )
 
-        bucket.add_event_notification(
-            s3.EventType.OBJECT_CREATED, 
-            s3n.LambdaDestination(promote_func),
-            s3.NotificationKeyFilter(prefix="metadata/zip_prod/")
+        prod_func.add_event_source(
+            event_sources.S3EventSource(bucket,
+                                        events=[s3.EventType.OBJECT_CREATED],
+                                        filters=[s3.NotificationKeyFilter(prefix="metadata/zip_prod/")])
         )
-
-
-
