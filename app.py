@@ -74,8 +74,6 @@ slack_notification.add_dependency(kenya_workflow)
 
 
 metadata_testing = MetadataDataQualityStack(app, "MetadataDataqualityStack")
-metadata_promote = MetadataDataQualityPromoteStack(app, "MetadataDataqualityPromoteStack")
-
 
 # synthesize to cloudformation
 app.synth()

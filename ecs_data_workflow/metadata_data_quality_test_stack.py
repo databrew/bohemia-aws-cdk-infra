@@ -41,10 +41,11 @@ class MetadataDataQualityStack(Stack):
                 ]))
 
         # Create bucket object
-        BUCKET='bohemia-lake-db'
+        TARGET_BUCKET='bohemia-lake-db'
         if(os.getenv('PIPELINE_STAGE')):
-            BUCKET = 'databrew-testing-' + BUCKET
-        bucket = s3.Bucket.from_bucket_name(self, "UseExistingBucket", BUCKET)
+            TARGET_BUCKET = 'databrew-testing-' + TARGET_BUCKET
+        
+        bucket = s3.Bucket(self, "MetadataTesting", versioned=True)
 
 
         aws_sdk_pandas_layer = sam.CfnApplication(
