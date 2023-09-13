@@ -82,7 +82,7 @@ class MetadataDataQualityStack(Stack):
         prod_func = lambda_alpha_.PythonFunction(
             self,
             "PromoteMetadata",
-            entry = "./lambda/metadata_data_quality_test",
+            entry = "./lambda/metadata_promote_data_to_prod",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
             runtime=_lambda.Runtime.PYTHON_3_8,
