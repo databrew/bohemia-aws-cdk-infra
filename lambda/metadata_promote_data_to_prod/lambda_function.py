@@ -13,7 +13,6 @@ s3client = boto3.client('s3')
 DQ_TEST_BUCKET_NAME = os.getenv('DQ_TEST_BUCKET_NAME')
 TARGET_BUCKET_NAME = os.getenv('TARGET_BUCKET_NAME')
 
-
 def get_prod_zipfile(metadata_type):
     try:
         logger.info('fetching zip file from user')
@@ -40,10 +39,11 @@ def snapshot_current(metadata_type):
         output_key = f'{metadata_type}_{os.path.splitext(csv)[0]}/{csv}'
         output_key_history = f'{metadata_type}_{os.path.splitext(csv)[0]}/run_date={date.today().strftime("%Y-%m-%d")}/{csv}'
         df = pd.read_csv(f'{dir}/{csv}')
-        aw.s3.to_csv(df, f's3://TARGET_BUCKET_NAME/{output_key}')
-        aw.s3.to_csv(df, f's3://TARGET_BUCKET_NAME/{output_key_history}')
+        aw.s3.to_csv(df, f's3://{TARGET_BUCKET_NAME}/{output_key}')
+        aw.s3.to_csv(df, f's3://{TARGET_BUCKET_NAME}/{output_key_history}')
 
 def lambda_handler(event, context):
-    s3trigger_loc = event['Records'][0]['s3']['object']['key'].split('/')[2]
-    get_prod_zipfile(s3trigger_loc)
-    snapshot_current(s3trigger_loc)
+    s3_event = event['Records'][0]['s3']['object']['key']
+    metadata_type = os.path.basename(os.path.splitext(s3_event)[0])
+    get_prod_zipfile(metadata_type)
+    snapshot_current(metadata_type)
