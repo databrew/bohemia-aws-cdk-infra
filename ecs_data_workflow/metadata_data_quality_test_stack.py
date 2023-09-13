@@ -13,7 +13,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_s3 as s3,
     aws_sam as sam,
-    aws_s3_notifications as s3n
+    aws_s3_notifications as s3n,
 )
 from constructs import Construct
 
@@ -70,6 +70,7 @@ class MetadataDataQualityStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
             layers=[aws_sdk_pandas_layer_version],
+            timeout=cdk.Duration.minutes(15),
             environment= {
                 'DQ_TEST_BUCKET_NAME': bucket.bucket_name,
                 'TARGET_BUCKET_NAME': TARGET_BUCKET_NAME
@@ -92,6 +93,7 @@ class MetadataDataQualityStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
             layers=[aws_sdk_pandas_layer_version],
+            timeout=cdk.Duration.minutes(15),
             environment= {
                 'DQ_TEST_BUCKET_NAME': bucket.bucket_name,
                 'TARGET_BUCKET_NAME': TARGET_BUCKET_NAME
