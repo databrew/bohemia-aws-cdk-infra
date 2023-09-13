@@ -36,8 +36,7 @@ class MetadataDataQualityStack(Stack):
                     "kms:Decrypt",
                     "ssm:*",
                     "s3:*",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents"
+                    "logs:*"
                 ]))
 
         # Create bucket object
