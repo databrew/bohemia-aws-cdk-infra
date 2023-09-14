@@ -26,7 +26,7 @@ def check_zip_n_content(dir, n_content):
         return (output_data)
     except Exception as e:
         logger.info('check_zip_n_content functional err: ' + str(e))
-        raise ()
+        raise()
 
 
 def check_zip_file_naming(dir, correct_file_list):
@@ -43,11 +43,11 @@ def check_zip_file_naming(dir, correct_file_list):
         return output_data
     except Exception as e:
         logger.info('check_zip_n_content functional err: ' + str(e))
-        raise ()
+        raise()
 
 
-def check_ever_eos(stg,
-                   hist,
+def check_ever_eos(stg_path,
+                   hist_path,
                    identifier_col=None,
                    eos_status_col=None,
                    metadata_type=None,
@@ -55,6 +55,8 @@ def check_ever_eos(stg,
 
     try:
         logger.info('testing check_ever_eos')
+        hist = get_most_recent_historical_data(hist_path)
+        stg = pd.read_csv(stg_path)
         merged_tbl = pd.merge(
             hist,
             stg,
@@ -86,7 +88,7 @@ def check_ever_eos(stg,
         return (merged_tbl)
     except Exception as e:
         logger.info('check_ever_eos err: ' + str(e))
-        raise ()
+        return (pd.DataFrame())
 
 
 def get_most_recent_historical_data(s3path):
@@ -100,7 +102,7 @@ def get_most_recent_historical_data(s3path):
         return max_hist
     except Exception as e:
         logger.info('get_most_recent_historical_data err: ' + str(e))
-        raise ()
+        return (pd.DataFrame())
 
 
 def get_staging_zipfile(bucket, metadata_type):
@@ -120,7 +122,7 @@ def get_staging_zipfile(bucket, metadata_type):
         logger.info('successful zip file fetch')
     except Exception as e:
         logger.info('get_staging_zipfile err: ' + str(e))
-        raise ()
+        raise()
 
 
 def lambda_handler(event, context):
@@ -145,9 +147,8 @@ def lambda_handler(event, context):
         # DATA VALIDATION
         # eos checker for individuals metadata
         output_check_ever_eos_extid = check_ever_eos(
-            hist=get_most_recent_historical_data(
-                s3path=INDIVIDUAL_HISTORICAL_S3_URI),
-            stg=pd.read_csv('/tmp/healthecon/individual_data.csv'),
+            hist_path= INDIVIDUAL_HISTORICAL_S3_URI,
+            stg_path='/tmp/healthecon/individual_data.csv',
             identifier_col='extid',
             eos_status_col='starting_hecon_status',
             metadata_type='healthecon',
@@ -156,9 +157,8 @@ def lambda_handler(event, context):
 
         # eos checker for househld metadat
         output_check_ever_eos_hhid = check_ever_eos(
-            hist=get_most_recent_historical_data(
-                s3path=HOUSEHOLD_HISTORICAL_S3_URI),
-            stg=pd.read_csv('/tmp/healthecon/household_data.csv'),
+            hist_path=HOUSEHOLD_HISTORICAL_S3_URI,
+            stg_path='/tmp/healthecon/household_data.csv',
             identifier_col='hhid',
             eos_status_col='hecon_hh_status',
             metadata_type='healthecon',

@@ -6,14 +6,10 @@ from aws_cdk import (
     aws_lambda as _lambda,
     CfnOutput,
     aws_lambda_python_alpha as lambda_alpha_,
-    aws_sqs as sqs,
-    aws_events as events,
-    aws_events_targets as targets, 
     aws_lambda_event_sources as event_sources,
     aws_iam as iam,
     aws_s3 as s3,
-    aws_sam as sam,
-    aws_s3_notifications as s3n,
+    aws_sam as sam
 )
 from constructs import Construct
 
