@@ -37,7 +37,7 @@ class MetadataDataQualityStack(Stack):
 
         # Create bucket object
         TARGET_BUCKET_NAME='bohemia-lake-db'
-        if(os.getenv('PIPELINE_STAGE')):
+        if (os.getenv('PIPELINE_STAGE') == 'develop'):
             TARGET_BUCKET_NAME = 'databrew-testing-' + TARGET_BUCKET_NAME
         
         bucket = s3.Bucket(self, "UNIT-TEST-HERE", versioned=True)
