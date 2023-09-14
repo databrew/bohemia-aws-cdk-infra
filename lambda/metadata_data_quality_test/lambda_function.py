@@ -26,7 +26,7 @@ def check_zip_n_content(dir, n_content):
         return (output_data)
     except Exception as e:
         logger.info('check_zip_n_content functional err: ' + str(e))
-        return (pd.DataFrame())
+        raise()
 
 
 def check_zip_file_naming(dir, correct_file_list):
@@ -43,7 +43,7 @@ def check_zip_file_naming(dir, correct_file_list):
         return output_data
     except Exception as e:
         logger.info('check_zip_n_content functional err: ' + str(e))
-        return (pd.DataFrame())
+        raise()
 
 
 def check_ever_eos(stg_path,
@@ -88,7 +88,7 @@ def check_ever_eos(stg_path,
         return (merged_tbl)
     except Exception as e:
         logger.info('check_ever_eos err: ' + str(e))
-        raise ()
+        return (pd.DataFrame())
 
 
 def get_most_recent_historical_data(s3path):
@@ -102,7 +102,7 @@ def get_most_recent_historical_data(s3path):
         return max_hist
     except Exception as e:
         logger.info('get_most_recent_historical_data err: ' + str(e))
-        raise ()
+        return (pd.DataFrame())
 
 
 def get_staging_zipfile(bucket, metadata_type):
@@ -122,7 +122,7 @@ def get_staging_zipfile(bucket, metadata_type):
         logger.info('successful zip file fetch')
     except Exception as e:
         logger.info('get_staging_zipfile err: ' + str(e))
-        raise ()
+        raise()
 
 
 def lambda_handler(event, context):
