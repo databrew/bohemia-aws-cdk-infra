@@ -157,8 +157,8 @@ def lambda_handler(event, context):
 
         # eos checker for househld metadat
         output_check_ever_eos_hhid = check_ever_eos(
-            hist=HOUSEHOLD_HISTORICAL_S3_URI,
-            stg='/tmp/healthecon/household_data.csv',
+            hist_path=HOUSEHOLD_HISTORICAL_S3_URI,
+            stg_path='/tmp/healthecon/household_data.csv',
             identifier_col='hhid',
             eos_status_col='hecon_hh_status',
             metadata_type='healthecon',
