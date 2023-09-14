@@ -36,8 +36,8 @@ def snapshot_current(metadata_type):
     dir = f'/tmp/{metadata_type}'
     csvs = set(list(filter(lambda f: f.endswith('.csv'), os.listdir(dir))))
     for csv in csvs:
-        output_key = f'{metadata_type}_{os.path.splitext(csv)[0]}/{csv}'
-        output_key_history = f'{metadata_type}_{os.path.splitext(csv)[0]}/run_date={date.today().strftime("%Y-%m-%d")}/{csv}'
+        output_key = f'metadata/{metadata_type}_{os.path.splitext(csv)[0]}/{csv}'
+        output_key_history = f'metadata/{metadata_type}_{os.path.splitext(csv)[0]}_hist/run_date={date.today().strftime("%Y-%m-%d")}/{csv}'
         df = pd.read_csv(f'{dir}/{csv}')
         aw.s3.to_csv(df, f's3://{TARGET_BUCKET_NAME}/{output_key}')
         aw.s3.to_csv(df, f's3://{TARGET_BUCKET_NAME}/{output_key_history}')
