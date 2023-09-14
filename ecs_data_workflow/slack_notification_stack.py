@@ -40,8 +40,7 @@ class SlackNotificationStack(Stack):
                     "states:DescribeExecution",
                     "states:GetExecutionHistory",
                     "states:DescribeActivity",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents"
+                    "logs:*"
                 ]))
         
         msg_queue = sqs.Queue(
