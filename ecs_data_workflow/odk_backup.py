@@ -55,7 +55,7 @@ class OdkBackupStack(Stack):
             entry = "./lambda/odk_backup",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_8,
+            runtime=_lambda.Runtime.PYTHON_3_11,
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
             environment= {
