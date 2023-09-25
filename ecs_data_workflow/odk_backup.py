@@ -58,6 +58,8 @@ class OdkBackupStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_11,
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
+            memory_size=1769,
+            ephemeral_storage_size=10240,
             environment= {
                 'BUCKET_NAME': bucket.bucket_name,
                 'SECRET_ID': SECRET_ID

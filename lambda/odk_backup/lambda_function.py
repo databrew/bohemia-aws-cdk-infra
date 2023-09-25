@@ -8,7 +8,7 @@ import logging
 import time
 from datetime import datetime
 from botocore.exceptions import ClientError
-from botocore.vendored import requests
+import requests
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
