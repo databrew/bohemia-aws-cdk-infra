@@ -1,19 +1,15 @@
 import os
 import aws_cdk as cdk
 from aws_cdk import (
-    # Duration,
     Stack,
     aws_lambda as _lambda,
-    CfnOutput,
     aws_lambda_python_alpha as lambda_alpha_,
-    aws_lambda_event_sources as event_sources,
     aws_iam as iam,
     aws_s3 as s3,
-    aws_sam as sam,
     aws_stepfunctions_tasks as tasks,
     aws_stepfunctions as sfn,
     aws_events as events,
-    aws_events_targets as targets
+    aws_events_targets as targets,
 )
 from constructs import Construct
 
@@ -59,7 +55,7 @@ class OdkBackupStack(Stack):
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
             memory_size=1769,
-            ephemeral_storage_size=10240,
+            ephemeral_storage_size=cdk.Size.mebibytes(10240),
             environment= {
                 'BUCKET_NAME': bucket.bucket_name,
                 'SECRET_ID': SECRET_ID
