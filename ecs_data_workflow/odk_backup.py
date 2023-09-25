@@ -65,7 +65,7 @@ class OdkBackupStack(Stack):
         )
 
         # success object
-        success_trigger = sfn.Succeed(self, "ODK Batch Pull Success")
+        success_trigger = sfn.Succeed(self, "ODK Backup Success")
 
         # extract and clean
         fail_trigger = sfn.Fail(self, "Notify Failure in ODK Backup!")
@@ -96,5 +96,5 @@ class OdkBackupStack(Stack):
 
         cdk.CfnOutput(self, 'OdkBackupStepFunction', 
                       value=state_machine.state_machine_arn,
-                      export_name='odkbatch:arn')
+                      export_name='odkbackup:arn')
 
