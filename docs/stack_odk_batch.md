@@ -1,4 +1,4 @@
-# AWS Workflow
+# Stacks: ODK Batch ECS Workflow
 
 This is documentation will cover the end to end infrastructure for DataBrew data ingestion model using ECS that is orchestrated by StepFunctions
 
