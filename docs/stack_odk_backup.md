@@ -40,7 +40,7 @@ Final Checks:
 - Make sure that you have `postgres-9.6` and `postgres-client-9.6` to enable `pg_dump` between two databases
 
 
-### Step 2: Restoring
+#### Step 2: Restoring Backup Files to New Server
 
 1. Get Access to S3 via Roles / Access Keys
 
@@ -56,3 +56,21 @@ cd
 cd central
 docker compose exec service node /usr/odk/lib/bin/restore.js /data/transfer/databrew-odk-central-backup.zip
 ```
+
+### FAQs
+
+1. How long to do daily backup snapshots? 
+- Lambda will take appx 2-3 mins
+
+2. How long to restore backup to new server? 
+- 3-4 hours for server setup
+- 5-10 mins to restore the zip backup 
+- 2-3 hours to repoint to new server
+
+3. Incident Response? 
+- Repoint data pull to the new server with new credentials etc
+- Dump data into a new bucket to not overwrite data that has been stored in the old bucket
+- Join data coming from old bucket and new bucket by ID to minimize data loss
+
+4. What is retained?
+**Everything in ODK Central** is retained up until the backup snapshot
