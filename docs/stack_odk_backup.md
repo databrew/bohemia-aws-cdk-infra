@@ -10,7 +10,7 @@ Backup will be stored [here](https://s3.console.aws.amazon.com/s3/buckets/odkbac
 
 #### Step 1: Fully Replicate databrew.org configuration
 
-1. Start an EC2 instance in `databrew-prod`
+1. Start an EC2 instance in `databrew-prod` - make sure that EC2 instance is at least `t2.medium` specs with `300GB` EBS Volume 
 2. Route HTTPS Request to EC2 Via Route 53 [here](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-ec2-instance.html)
 3. Go through the ODK Installation provided in the official documentation [here](https://docs.getodk.org/central-install-digital-ocean/#getting-and-setting-up-central)
 4. Before doing `docker compose` revert to Central 1.5.3 submodule to use the same ODK Central Version as databrew.org
