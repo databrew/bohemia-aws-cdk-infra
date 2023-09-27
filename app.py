@@ -10,7 +10,7 @@ different stacks are going to be appended based on our use-case
 import os
 import aws_cdk as cdk
 from ecs_data_workflow.base_infrastructure_stack import BaseInfrastructureStack
-from ecs_data_workflow.kenya_workflow_stack import KenyaWorkflowStack
+from ecs_data_workflow.reporting_stack import ReportingStack
 from ecs_data_workflow.cloudfront_report_stack import CloudFrontReportStack
 from ecs_data_workflow.glue_infra_stack import GlueInfraStack
 from ecs_data_workflow.odk_batch_stack import OdkBatchStack
@@ -49,8 +49,8 @@ odk_batch = OdkBatchStack(
 )
 
 # This is the stack used for kenya
-kenya_workflow = KenyaWorkflowStack(
-    app, "KenyaWorkflowStack",
+reporting = ReportingStack(
+    app, "ReportingStack",
     env = cdk_default_environment,
     cluster = base_infra.cluster
 )
@@ -75,8 +75,8 @@ odk_backup = OdkBackupStack(
 
 # serial deps to prevent locking between stack creation
 odk_batch.add_dependency(odk_backup)
-kenya_workflow.add_dependency(odk_batch)
-slack_notification.add_dependency(kenya_workflow)
+reporting.add_dependency(odk_batch)
+slack_notification.add_dependency(reporting)
 
 # synthesize to cloudformation
 app.synth()

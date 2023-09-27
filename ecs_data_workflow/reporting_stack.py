@@ -27,7 +27,7 @@ from aws_cdk import (
 from constructs import Construct
 
 
-class KenyaWorkflowStack(Stack):
+class ReportingStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, env = None, cluster = None) -> None:
         super().__init__(scope, construct_id, env = env)
@@ -92,65 +92,27 @@ class KenyaWorkflowStack(Stack):
         # what role you want to use and what is the name use in the console
         task_definition = ecs.FargateTaskDefinition(
             self,
-            "pipeline-ento-task-definition",
+            "pipeline-reporting-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
-            family='pipeline-ento',
+            family='pipeline-reporting',
             memory_limit_mib= 2048
         )
 
         # this is the dockerhub image that points to dockerhub
-        dockerhub_image = f'databrewllc/pipeline-ento:{docker_version}'
+        dockerhub_image = f'databrewllc/pipeline-reporting:{docker_version}'
 
         # attach the container to the task definition
         container_definition = task_definition.add_container(
-            "pipeline-ento-container",
+            "pipeline-reporting-container",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
             memory_limit_mib=2048
         )
 
         # ento pipeline dump
-        ento_pipeline = tasks.EcsRunTask(    
-            self, "EntoJob",
-            integration_pattern=sfn.IntegrationPattern.RUN_JOB,
-            cluster=cluster,
-            task_definition=task_definition,
-            assign_public_ip=True,
-            container_overrides=[
-                tasks.ContainerOverride(
-                    container_definition=container_definition,
-                    environment= environment_variables
-            )],
-            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
-        )
-
-        #######################################
-        # Step 3b: Placeholder Create V0 Pipeline
-        #######################################
-        task_definition = ecs.FargateTaskDefinition(
-            self,
-            "pipeline-se-task-definition",
-            execution_role=ecs_role,
-            task_role=ecs_role,
-            family='pipeline-se',
-            memory_limit_mib= 2048
-        )
-
-        # this is the dockerhub image that points to dockerhub
-        dockerhub_image = f'databrewllc/pipeline-safety-and-efficacy:{docker_version}'
-
-        # attach the container to the task definition
-        container_definition = task_definition.add_container(
-            "pipeline-se-container",
-            image=ecs.ContainerImage.from_registry(dockerhub_image),
-            logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
-            memory_limit_mib=2048
-        )
-
-        # ento pipeline dump
-        se_pipeline = tasks.EcsRunTask(    
-            self, "Safety&EfficacyJob",
+        reporting_pipeline = tasks.EcsRunTask(    
+            self, "ReportingJob",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
             task_definition=task_definition,
@@ -172,19 +134,14 @@ class KenyaWorkflowStack(Stack):
 
         # reporting parallels
         reporting_fail_trigger = sfn.Fail(self, "Notify Failure in reporting!")
-        reporting_parallel = sfn.Parallel(
-            self, 
-            'Reporting',
-        )
-        reporting_parallel.branch(ento_pipeline)
-        reporting_parallel.branch(se_pipeline)
-        reporting_parallel.add_catch(reporting_fail_trigger)
 
-        parallel = (reporting_parallel).next(success_trigger)
+        reporting_pipeline.add_catch(reporting_fail_trigger)
+
+        parallel = (reporting_pipeline).next(success_trigger)
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
-            self, "KenyaDataPipeline",
+            self, "ReportingPipeline",
             definition = parallel)
         
         #######################################
@@ -194,14 +151,14 @@ class KenyaWorkflowStack(Stack):
         if (os.getenv('PIPELINE_STAGE') == 'production'):
             # add event rule to run data pipeline for work time at EAT
             hourly_schedule = events.Rule(
-                self, "KenyaDataPipelineTriggerWorkHoursSchedule",
+                self, "ReportingPipelineTriggerWorkHoursSchedule",
                 schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
             # add event rule to run at midnight EAT timezone
             midnight_schedule = events.Rule(
-                self, "KenyaDataPipelineTriggerMidnightSchedule",
+                self, "ReportingPipelineTriggerMidnightSchedule",
                 schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
