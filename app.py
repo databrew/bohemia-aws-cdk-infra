@@ -74,15 +74,17 @@ odk_backup = OdkBackupStack(
     "OdkBackupStack"
 )
 
+# google sheets stack
+google_sheets = AnomaliesGsheetsStack(
+    app,
+    "AnomaliesGsheetsStack"
+)
+
 # serial deps to prevent locking between stack creation
 odk_batch.add_dependency(odk_backup)
 reporting.add_dependency(odk_batch)
 slack_notification.add_dependency(reporting)
 
-google_sheets = AnomaliesGsheetsStack(
-    app,
-    "AnomaliesGsheetsStack"
-)
 
 # synthesize to cloudformation
 app.synth()
