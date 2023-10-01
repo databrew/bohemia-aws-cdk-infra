@@ -77,7 +77,9 @@ odk_backup = OdkBackupStack(
 # google sheets stack
 google_sheets = AnomaliesGsheetsStack(
     app,
-    "AnomaliesGsheetsStack"
+    "AnomaliesGsheetsStack",
+    env = cdk_default_environment,
+    cluster = base_infra.cluster
 )
 
 # serial deps to prevent locking between stack creation
