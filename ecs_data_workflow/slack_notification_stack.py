@@ -77,7 +77,8 @@ class SlackNotificationStack(Stack):
         state_machine_arns = [
             cdk.Fn.import_value('odkbatch:arn'),
             cdk.Fn.import_value('report:arn'),
-            cdk.Fn.import_value('odkbackup:arn')
+            cdk.Fn.import_value('odkbackup:arn'),
+            cdk.Fn.import_value('pipeline-gsheets:arn')
         ]
         event_rule = events.Rule(
             self, 

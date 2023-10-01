@@ -37,7 +37,7 @@ class AnomaliesGsheetsStack(Stack):
                             name="BUCKET_NAME", 
                             value=BUCKET_NAME),
                         tasks.TaskEnvironmentVariable(
-                            name="GOOGLE_API_SECRET_ID", 
+                            name="SECRET_ID", 
                             value=SECRET_ID),
                         tasks.TaskEnvironmentVariable(
                             name="PIPELINE_STAGE", 
