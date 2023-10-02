@@ -16,6 +16,7 @@ from ecs_data_workflow.glue_infra_stack import GlueInfraStack
 from ecs_data_workflow.odk_batch_stack import OdkBatchStack
 from ecs_data_workflow.slack_notification_stack import SlackNotificationStack
 from ecs_data_workflow.odk_backup import OdkBackupStack
+from ecs_data_workflow.anomalies_gsheets_stack import AnomaliesGsheetsStack
 
 # instantiate application
 app = cdk.App()
@@ -73,10 +74,19 @@ odk_backup = OdkBackupStack(
     "OdkBackupStack"
 )
 
+# google sheets stack
+google_sheets = AnomaliesGsheetsStack(
+    app,
+    "AnomaliesGsheetsStack",
+    env = cdk_default_environment,
+    cluster = base_infra.cluster
+)
+
 # serial deps to prevent locking between stack creation
 odk_batch.add_dependency(odk_backup)
 reporting.add_dependency(odk_batch)
 slack_notification.add_dependency(reporting)
+
 
 # synthesize to cloudformation
 app.synth()
