@@ -17,6 +17,7 @@ from ecs_data_workflow.odk_batch_stack import OdkBatchStack
 from ecs_data_workflow.slack_notification_stack import SlackNotificationStack
 from ecs_data_workflow.odk_backup import OdkBackupStack
 from ecs_data_workflow.anomalies_gsheets_stack import AnomaliesGsheetsStack
+from ecs_data_workflow.metadata_update_stack import MetadataUpdateStack
 
 # instantiate application
 app = cdk.App()
@@ -56,6 +57,13 @@ reporting = ReportingStack(
     cluster = base_infra.cluster
 )
 
+# This is the stack used for kenya
+metadata = MetadataUpdateStack(
+    app, "MetadataUpdateStack",
+    env = cdk_default_environment,
+    cluster = base_infra.cluster
+)
+
 # this is the glue database setup
 glue_db = GlueInfraStack(
     app, "GlueInfraStack",
@@ -85,7 +93,8 @@ google_sheets = AnomaliesGsheetsStack(
 # serial deps to prevent locking between stack creation
 odk_batch.add_dependency(odk_backup)
 reporting.add_dependency(odk_batch)
-slack_notification.add_dependency(reporting)
+metadata.add_dependency(reporting)
+slack_notification.add_dependency(metadata)
 
 
 # synthesize to cloudformation
