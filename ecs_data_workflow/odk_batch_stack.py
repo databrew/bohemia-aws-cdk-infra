@@ -144,7 +144,7 @@ class OdkBatchStack(Stack):
             "pipeline-cleaning-containter",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
-            memory_limit_mib= 2048
+            memory_limit_mib= 2048,
             cpu=1024
         )
 
