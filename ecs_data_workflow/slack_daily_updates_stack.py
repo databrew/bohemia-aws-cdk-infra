@@ -9,7 +9,8 @@ from aws_cdk import (
     aws_stepfunctions_tasks as tasks,
     aws_stepfunctions as sfn,
     aws_events as events,
-    aws_events_targets as targets
+    aws_events_targets as targets,
+    aws_sam as sam
 )
 from constructs import Construct
 
@@ -41,6 +42,18 @@ class SlackDailyUpdatesStack(Stack):
                     "logs:*",
                     "secretsmanager:*"
                 ]))
+        
+        aws_sdk_pandas_layer = sam.CfnApplication(
+            self,
+            "awssdkpandas-layer",
+            location=sam.CfnApplication.ApplicationLocationProperty(
+                application_id="arn:aws:serverlessrepo:us-east-1:336392948345:applications/aws-sdk-pandas-layer-py3-8",
+                semantic_version="3.0.0",  # Get the latest version from https://serverlessrepo.aws.amazon.com/applications
+            ),
+        )
+
+        aws_sdk_pandas_layer_arn = aws_sdk_pandas_layer.get_att("Outputs.WranglerLayer38Arn").to_string()
+        aws_sdk_pandas_layer_version = _lambda.LayerVersion.from_layer_version_arn(self, "awssdkpandas-layer-version", aws_sdk_pandas_layer_arn)
 
         # Lambda Function for sending messages to Slack
         send_form_submissions_func = lambda_alpha_.PythonFunction(
@@ -49,11 +62,12 @@ class SlackDailyUpdatesStack(Stack):
             entry = "./lambda/send_form_submissions_to_slack",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_11,
+            runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
             memory_size=1769,
             ephemeral_storage_size=cdk.Size.mebibytes(10240),
+            layers=[aws_sdk_pandas_layer_version],
             environment= {
                 'BUCKET_NAME': BUCKET_NAME
             }
