@@ -52,7 +52,7 @@ def lambda_handler(event, context):
     data_list['submissions_p7d'] = []
     for obj in objects['Contents']:
         key_name = f's3://{BUCKET_NAME}/' + obj['Key']
-        if('-repeat' not in key_name):
+        if(('-repeat' not in key_name) & ('.csv' in key_name)):
             try:
                 data = aw.s3.read_csv(key_name)
                 nrow = data.shape[0]
@@ -71,7 +71,7 @@ def lambda_handler(event, context):
     
     logger.info('Create dataframe ..')
     try:
-        d = pd.DataFrame(data_list)
+        d = pd.DataFrame(data_list).dropna()
         d['fid'] = d['s3uri'].apply(lambda x: os.path.splitext(os.path.basename(x))[0])
         d = d[TARGET_COLS].sort_values(
                 by=['submissions_p7d'], ascending = False).set_index('fid')
