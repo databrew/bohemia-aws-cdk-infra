@@ -91,7 +91,7 @@ class SlackDailyUpdatesStack(Stack):
 
         cdk.CfnOutput(self, 'SlackUpdatesStepFunction', 
                       value=state_machine.state_machine_arn,
-                      export_name='odkbackup:arn')
+                      export_name='slackdailyupdates:arn')
 
 
 
