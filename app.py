@@ -18,6 +18,7 @@ from ecs_data_workflow.slack_notification_stack import SlackNotificationStack
 from ecs_data_workflow.odk_backup import OdkBackupStack
 from ecs_data_workflow.anomalies_gsheets_stack import AnomaliesGsheetsStack
 from ecs_data_workflow.metadata_update_stack import MetadataUpdateStack
+from ecs_data_workflow.slack_daily_updates_stack import SlackDailyUpdatesStack
 
 # instantiate application
 app = cdk.App()
@@ -88,6 +89,13 @@ google_sheets = AnomaliesGsheetsStack(
     "AnomaliesGsheetsStack",
     env = cdk_default_environment,
     cluster = base_infra.cluster
+)
+
+# slack daily updates
+slack_daily_updates = SlackDailyUpdatesStack(
+    app,
+    "SlackDailyUpdatesStack",
+    env = cdk_default_environment,
 )
 
 # serial deps to prevent locking between stack creation
