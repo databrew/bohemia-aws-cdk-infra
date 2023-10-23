@@ -45,23 +45,25 @@ def lambda_handler(event, context):
     logger.info('Fetch dataframe ..')
     anomalies_resolution_df = aw.s3.read_csv(anomalies_resolution)
     anomalies_detection_df = aw.s3.read_csv(anomalies_detection)
-    anomalies_detection_summary_df = (anomalies_detection_df[~anomalies_detection_df['form_id'].isin(['v0demography'])]\
-                                                               .groupby('form_id')\
-                                                               .agg(anomalies = pd.NamedAgg(column = "resolution_id",
-                                                                                            aggfunc= "nunique"))\
-                                                               .reset_index())
+    anomalies_detection_summary_df = (anomalies_detection_df[~anomalies_detection_df['form_id'].isin(['v0demography', 
+                                                                                                    'v0demography-repeat_individual'])]\
+                                                                .groupby('form_id')\
+                                                                .agg(anomalies = pd.NamedAgg(column = "resolution_id",
+                                                                                                aggfunc= "nunique"))\
+                                                                .reset_index())
 
-    anomalies_resolution_summary_df = (anomalies_resolution_df[~anomalies_resolution_df['form_id'].isin(['v0demography'])]\
-                                                               .groupby(['form_id'])\
-                                                               .agg(resolved = pd.NamedAgg(column = "resolution_id",
-                                                                                            aggfunc= "nunique"))\
-                                                               .reset_index())
+    anomalies_resolution_summary_df = (anomalies_resolution_df[~anomalies_resolution_df['form_id'].isin(['v0demography',
+                                                                                                        'v0demography-repeat_individual'])]\
+                                                                .groupby(['form_id'])\
+                                                                .agg(resolved = pd.NamedAgg(column = "resolution_id",
+                                                                                                aggfunc= "nunique"))\
+                                                                .reset_index())
     
 
     merged_summary = pd.merge(
             anomalies_detection_summary_df, 
             anomalies_resolution_summary_df, 
-            how="inner", 
+            how="left", 
             on='form_id'
     )
 
