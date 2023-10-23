@@ -25,9 +25,11 @@ class SlackDailyUpdatesStack(Stack):
 
         # Create bucket object
         if (os.getenv('PIPELINE_STAGE') == 'develop'):
-            BUCKET_NAME = 'databrew-testing-databrew.org'
+            FORM_BUCKET_NAME = 'databrew-testing-databrew.org'
+            DLAKE_BUCKET_NAME = 'databrew-testing-bohemia-lake-db'
         else:
-            BUCKET_NAME = 'databrew.org'
+            FORM_BUCKET_NAME = 'databrew.org'
+            DLAKE_BUCKET_NAME = 'bohemia-lake-db'
 
         # each role has a policy attached to it
         exec_role.add_to_policy(
@@ -69,7 +71,7 @@ class SlackDailyUpdatesStack(Stack):
             ephemeral_storage_size=cdk.Size.mebibytes(10240),
             layers=[aws_sdk_pandas_layer_version],
             environment= {
-                'BUCKET_NAME': BUCKET_NAME
+                'FORM_BUCKET_NAME': FORM_BUCKET_NAME
             }
         )
 
@@ -87,7 +89,7 @@ class SlackDailyUpdatesStack(Stack):
             ephemeral_storage_size=cdk.Size.mebibytes(10240),
             layers=[aws_sdk_pandas_layer_version],
             environment= {
-                'BUCKET_NAME': BUCKET_NAME
+                'DLAKE_BUCKET_NAME': DLAKE_BUCKET_NAME
             }
         )
 
@@ -105,7 +107,7 @@ class SlackDailyUpdatesStack(Stack):
         
         anomalies_update_lambda_task = tasks.LambdaInvoke(
             self, 
-            "SlackDailyAnUpdatesTask",
+            "SlackDailyAnomaliesUpdatesTask",
             lambda_function= send_anomalies_func)
         
         form_update_lambda_task.add_catch(fail_trigger)

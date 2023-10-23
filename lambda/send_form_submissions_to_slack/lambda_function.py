@@ -17,7 +17,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 http = urllib3.PoolManager() 
 
-BUCKET_NAME = os.getenv('BUCKET_NAME')
+BUCKET_NAME = os.getenv('FORM_BUCKET_NAME')
 TARGET_COLS = ['fid', 'submissions_total', 'submissions_today', 'submissions_p7d']
 
 def get_slack_webhook_url(parameter_name):

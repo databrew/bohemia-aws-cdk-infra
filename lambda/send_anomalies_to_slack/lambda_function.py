@@ -16,7 +16,7 @@ today = str(date.today())
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 http = urllib3.PoolManager() 
-BUCKET_NAME = os.getenv('BUCKET_NAME')
+BUCKET_NAME = os.getenv('DLAKE_BUCKET_NAME')
 
 def get_slack_webhook_url(parameter_name):
     # Initialize a Boto3 SSM client
@@ -38,9 +38,8 @@ def lambda_handler(event, context):
     start = time.time()
 
     # object reference
-    bucket_name = os.getenv('BUCKET_NAME')
-    anomalies_resolution =  's3://' + bucket_name + '/' + 'bohemia_prod/anomalies_resolution/anomalies_resolution.csv'
-    anomalies_detection =  's3://' + bucket_name + '/' + 'bohemia_prod/anomalies_detection/anomalies_detection.csv'
+    anomalies_resolution =  's3://' + BUCKET_NAME + '/' + 'bohemia_prod/anomalies_resolution/anomalies_resolution.csv'
+    anomalies_detection =  's3://' + BUCKET_NAME + '/' + 'bohemia_prod/anomalies_detection/anomalies_detection.csv'
     v0_repeat =  's3://' + 'databrew.org' + '/' + 'kwale/clean-form/v0demography/v0demography-repeat_individual.csv'
 
     logger.info('Fetch dataframe ..')
