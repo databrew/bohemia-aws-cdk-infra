@@ -68,6 +68,7 @@ def lambda_handler(event, context):
     )
 
     merged_summary['completion'] = 100 * (merged_summary['resolved'] / merged_summary['anomalies'])
+    merged_summary['completion'] = merged_summary['completion'].fillna(0)
     merged_summary['completion'] = merged_summary['completion'].apply(lambda x: "{:.1f}%".format(x))
 
 
