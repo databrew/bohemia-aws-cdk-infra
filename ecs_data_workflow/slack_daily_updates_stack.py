@@ -25,9 +25,11 @@ class SlackDailyUpdatesStack(Stack):
 
         # Create bucket object
         if (os.getenv('PIPELINE_STAGE') == 'develop'):
-            BUCKET_NAME = 'databrew-testing-databrew.org'
+            FORM_BUCKET_NAME = 'databrew-testing-databrew.org'
+            DLAKE_BUCKET_NAME = 'databrew-testing-bohemia-lake-db'
         else:
-            BUCKET_NAME = 'databrew.org'
+            FORM_BUCKET_NAME = 'databrew.org'
+            DLAKE_BUCKET_NAME = 'bohemia-lake-db'
 
         # each role has a policy attached to it
         exec_role.add_to_policy(
@@ -69,7 +71,25 @@ class SlackDailyUpdatesStack(Stack):
             ephemeral_storage_size=cdk.Size.mebibytes(10240),
             layers=[aws_sdk_pandas_layer_version],
             environment= {
-                'BUCKET_NAME': BUCKET_NAME
+                'FORM_BUCKET_NAME': FORM_BUCKET_NAME
+            }
+        )
+
+        # Lambda Function for sending messages to Slack
+        send_anomalies_func = lambda_alpha_.PythonFunction(
+            self,
+            "SlackDailyAnomaliesUpdatesFunc",
+            entry = "./lambda/send_anomalies_to_slack",
+            index = 'lambda_function.py',
+            handler = 'lambda_handler',
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            role = exec_role,
+            timeout=cdk.Duration.minutes(15),
+            memory_size=1769,
+            ephemeral_storage_size=cdk.Size.mebibytes(10240),
+            layers=[aws_sdk_pandas_layer_version],
+            environment= {
+                'DLAKE_BUCKET_NAME': DLAKE_BUCKET_NAME
             }
         )
 
@@ -80,14 +100,24 @@ class SlackDailyUpdatesStack(Stack):
         fail_trigger = sfn.Fail(self, "Notify Failure in Slack Form Updates!")
 
 
-        lambda_task = tasks.LambdaInvoke(self, 
-                                         "SlackDailyFormUpdatesTask",
-                                         lambda_function= send_form_submissions_func)
-        lambda_task.add_catch(fail_trigger)
-        lambda_task.next(success_trigger)
+        form_update_lambda_task = tasks.LambdaInvoke(
+            self, 
+            "SlackDailyFormUpdatesTask",
+            lambda_function= send_form_submissions_func)
+        
+        anomalies_update_lambda_task = tasks.LambdaInvoke(
+            self, 
+            "SlackDailyAnomaliesUpdatesTask",
+            lambda_function= send_anomalies_func)
+        
+        form_update_lambda_task.add_catch(fail_trigger)
+        anomalies_update_lambda_task.add_catch(fail_trigger)
+        
+        sf_flow = form_update_lambda_task.next(anomalies_update_lambda_task).next(success_trigger)
         
         state_machine = sfn.StateMachine(
-            self, "SlackUpdatesStateMachine", definition=lambda_task
+            self, "SlackUpdatesStateMachine", 
+            definition=sf_flow
         )
 
         #######################################
