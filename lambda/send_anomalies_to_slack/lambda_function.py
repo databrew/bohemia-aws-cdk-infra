@@ -67,21 +67,37 @@ def lambda_handler(event, context):
             on='form_id'
     )
     
-    merged_summary['resolved'] = merged_summary['resolved'].fillna(0)
     merged_summary['completion'] = 100 * (merged_summary['resolved'] / merged_summary['anomalies'])
     merged_summary['completion'] = merged_summary['completion'].fillna(0)
     merged_summary['completion'] = merged_summary['completion'].apply(lambda x: "{:.1f}%".format(x))
 
 
-    anomalies_completion = merged_summary.set_index('form_id').to_markdown()
-    top_10_anomalies_id = anomalies_detection_df.groupby('anomalies_id').agg(
+    anomalies_completion_df = merged_summary.set_index('form_id')
+    top_10_anomalies_id_df = anomalies_detection_df.groupby('anomalies_id').agg(
         anomalies = pd.NamedAgg(
             column = 'resolution_id',
-            aggfunc= "nunique")).sort_values('anomalies', ascending = False).head(10).to_markdown()
-    top_10_wid_anomalies = anomalies_detection_df.groupby('anomalies_reports_to_wid').agg(
+            aggfunc= "nunique")).sort_values('anomalies', ascending = False).head(10)
+    top_10_wid_anomalies_df = anomalies_detection_df.groupby('anomalies_reports_to_wid').agg(
         anomalies = pd.NamedAgg(
             column = 'resolution_id',
-            aggfunc= "nunique")).sort_values('anomalies', ascending = False).head(10).to_markdown()
+            aggfunc= "nunique")).sort_values('anomalies', ascending = False).head(10)
+    
+
+    anomalies_completion = tabulate(
+        anomalies_completion_df, 
+        headers = ['form_id', 'anomalies', 'resolved', 'completion'], 
+        tablefmt = 'simple')
+    
+
+    top_10_anomalies_id = tabulate(
+        top_10_anomalies_id_df, 
+        headers = ['anomalies_id', 'anomalies'], 
+        tablefmt = 'simple')
+    
+    top_10_wid_anomalies = tabulate(
+        top_10_wid_anomalies_df, 
+        headers = ['anomalies_reports_to_wid', 'anomalies'], 
+        tablefmt = 'simple')
     
     anomalies = anomalies_detection_summary_df['anomalies'].sum()
     resolved = anomalies_resolution_summary_df['resolved'].sum()
