@@ -83,7 +83,7 @@ def lambda_handler(event, context):
     try:
         output_string = tabulate(d, 
                                 headers = TARGET_COLS, 
-                                tablefmt = 'orgtbl')
+                                tablefmt = 'simple')
         
         slack_table = {"text":f"*{today} Daily Form Updates:*\n"+"```\n" + output_string + "\n```"}
         info = json.dumps(slack_table)
