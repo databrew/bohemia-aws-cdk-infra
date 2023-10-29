@@ -67,7 +67,7 @@ def lambda_handler(event, context):
             on='form_id'
     )
     
-    merged_summary['completion'] = 100 * (merged_summary['resolved'] / merged_summary['anomalies'])
+    merged_summary['completion'] = 100 * (merged_summary['resolved'] / (merged_summary['anomalies'] + merged_summary['resolved']))
     merged_summary['completion'] = merged_summary['completion'].fillna(0)
     merged_summary['completion'] = merged_summary['completion'].apply(lambda x: "{:.1f}%".format(x))
 
@@ -101,7 +101,7 @@ def lambda_handler(event, context):
     
     anomalies = anomalies_detection_summary_df['anomalies'].sum()
     resolved = anomalies_resolution_summary_df['resolved'].sum()
-    burn_rate = "{:.1f}%".format(100* resolved/anomalies)
+    burn_rate = "{:.1f}%".format(100* resolved/(anomalies+resolved))
     summary_anomalies = f"\nTotal anomalies: {anomalies}\nTotal resolved: {resolved}\nAnomalies Burn Rate: {burn_rate}\n \n"
 
     anomalies_completion_data_blob = "*Anomalies Completion:* \n" + summary_anomalies + "```\n" + anomalies_completion + "\n```"
