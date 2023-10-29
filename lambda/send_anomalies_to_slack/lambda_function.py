@@ -67,7 +67,7 @@ def lambda_handler(event, context):
             on='form_id'
     )
     
-    merged_summary['completion'] = 100 * (merged_summary['resolved'] / merged_summary['anomalies'])
+    merged_summary['completion'] = 100 * (merged_summary['resolved'] / (merged_summary['anomalies'] + merged_summary['resolved']))
     merged_summary['completion'] = merged_summary['completion'].fillna(0)
     merged_summary['completion'] = merged_summary['completion'].apply(lambda x: "{:.1f}%".format(x))
 
@@ -101,13 +101,14 @@ def lambda_handler(event, context):
     
     anomalies = anomalies_detection_summary_df['anomalies'].sum()
     resolved = anomalies_resolution_summary_df['resolved'].sum()
-    burn_rate = "{:.1f}%".format(100* resolved/anomalies)
+    burn_rate = "{:.1f}%".format(100* resolved/(anomalies+resolved))
     summary_anomalies = f"\nTotal anomalies: {anomalies}\nTotal resolved: {resolved}\nAnomalies Burn Rate: {burn_rate}\n \n"
 
     anomalies_completion_data_blob = "*Anomalies Completion:* \n" + summary_anomalies + "```\n" + anomalies_completion + "\n```"
     top_10_anomalies_id_data_blob = "\n \n*Top 10 Anomalies:* \n ```\n" + top_10_anomalies_id + "\n```"
     top_10_wid_anomalies_data_blob = "\n \n*Top 10 Workers with most anomalies:* \n ```\n" + top_10_wid_anomalies  + "\n```"
-    output_string = anomalies_completion_data_blob + top_10_anomalies_id_data_blob + top_10_wid_anomalies_data_blob
+    link_to_url="\n \n Check out this report for more details: https://d27fg4iv55pk9u.cloudfront.net/anomalies/anomalies_report.html"
+    output_string = anomalies_completion_data_blob + top_10_anomalies_id_data_blob + top_10_wid_anomalies_data_blob + link_to_url
 
     today = str(date.today())
     slack_table = {"text":f"*{today} Daily Anomalies Updates:* \n \n"+ output_string}
