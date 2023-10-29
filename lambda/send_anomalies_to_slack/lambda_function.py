@@ -107,7 +107,8 @@ def lambda_handler(event, context):
     anomalies_completion_data_blob = "*Anomalies Completion:* \n" + summary_anomalies + "```\n" + anomalies_completion + "\n```"
     top_10_anomalies_id_data_blob = "\n \n*Top 10 Anomalies:* \n ```\n" + top_10_anomalies_id + "\n```"
     top_10_wid_anomalies_data_blob = "\n \n*Top 10 Workers with most anomalies:* \n ```\n" + top_10_wid_anomalies  + "\n```"
-    output_string = anomalies_completion_data_blob + top_10_anomalies_id_data_blob + top_10_wid_anomalies_data_blob
+    link_to_url="\n \n Check out this report for more details: https://d27fg4iv55pk9u.cloudfront.net/anomalies/anomalies_report.html"
+    output_string = anomalies_completion_data_blob + top_10_anomalies_id_data_blob + top_10_wid_anomalies_data_blob + link_to_url
 
     today = str(date.today())
     slack_table = {"text":f"*{today} Daily Anomalies Updates:* \n \n"+ output_string}
