@@ -12,7 +12,7 @@ and an EventBridge Scheduler
 import os
 import aws_cdk as cdk
 from aws_cdk import (
-    # Duration,
+    Duration,
     Stack, 
     aws_ecs as ecs,
     aws_iam as iam,
@@ -108,7 +108,7 @@ class MetadataUpdateStack(Stack):
         )
 
         # ento pipeline dump
-        metadata_pipeline = tasks.EcsRunTask(    
+        metadata_task = tasks.EcsRunTask(    
             self, "MetadataJob",
             integration_pattern=sfn.IntegrationPattern.RUN_JOB,
             cluster=cluster,
@@ -119,7 +119,8 @@ class MetadataUpdateStack(Stack):
                     container_definition=container_definition,
                     environment= environment_variables
             )],
-            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
+            launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST),
+            task_timeout = sfn.Timeout.duration(Duration.minutes(30))
         )
 
         #######################################
@@ -128,13 +129,20 @@ class MetadataUpdateStack(Stack):
 
         # success object
         success_trigger = sfn.Succeed(self, "Don't worry be happy")
-
-        # Metadata parallels
         fail_trigger = sfn.Fail(self, "Notify Failure in metadata update!")
-
-        metadata_pipeline.add_catch(fail_trigger)
-
-        parallel = (metadata_pipeline).next(success_trigger)
+        
+        parallel = sfn.Parallel(
+            self, 
+            'Run Metadata',
+        )
+        parallel.branch(metadata_task)
+        # retry if failed
+        parallel.add_retry(
+            max_attempts=3,
+            interval=Duration.seconds(5),
+        )
+        parallel.add_catch(fail_trigger)
+        parallel.next(success_trigger)
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
