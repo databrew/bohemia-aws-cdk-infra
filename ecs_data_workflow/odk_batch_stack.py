@@ -186,8 +186,7 @@ class OdkBatchStack(Stack):
         # ret
         parallel.add_retry(
             max_attempts=3,
-            max_delay=Duration.seconds(5),
-            jitter_strategy=sfn.JitterType.FULL
+            max_delay=Duration.seconds(3),
         )
         parallel.add_catch(fail_trigger)
 
