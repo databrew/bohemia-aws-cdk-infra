@@ -9,7 +9,7 @@ This CDK stack is used for mini-batch extraction in ODK
 import os
 import aws_cdk as cdk
 from aws_cdk import (
-    # Duration,
+    Duration,
     Stack,
     aws_ec2 as ec2, aws_ecs as ecs,
     aws_ecs_patterns as ecs_patterns,
@@ -173,23 +173,29 @@ class OdkBatchStack(Stack):
 
         # success object
         success_trigger = sfn.Succeed(self, "ODK Batch Pull Success")
+        fail_trigger = sfn.Fail(self, "Notify Failure in ODK Extraction!")
 
         # extract and clean
-        pipeline = form_extraction.next(cleaning_pipeline)
-        fail_trigger = sfn.Fail(self, "Notify Failure in ODK Extraction!")
-        
-        extract_parallel = sfn.Parallel(
+        pipeline = form_extraction.next(cleaning_pipeline).next(success_trigger)
+        parallel = sfn.Parallel(
             self, 
             'ODK Batch Data Pull',
         )
-        extract_parallel.branch(pipeline)
-        extract_parallel.add_catch(fail_trigger)
-        parallel = extract_parallel.next(success_trigger)
+        parallel.branch(pipeline)
+
+        # ret
+        parallel.add_retry(
+            max_attempts=3,
+            max_delay=Duration.seconds(5),
+            jitter_strategy=sfn.JitterType.FULL
+        )
+        parallel.add_catch(fail_trigger)
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
             self, "ODKBatch",
             definition = parallel)
+        
         
         #######################################
         # Eventbridge
@@ -200,6 +206,12 @@ class OdkBatchStack(Stack):
             update_schedule = events.Rule(
                 self, "ODKBatchRefreshRate",
                 schedule=events.Schedule.expression("rate(15 minutes)"),
+                targets=[targets.SfnStateMachine(state_machine)]
+            )
+        else:
+            update_schedule = events.Rule(
+                self, "ODKBatchRefreshRate",
+                schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
