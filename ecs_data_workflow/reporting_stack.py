@@ -75,6 +75,7 @@ class ReportingStack(Stack):
                     "cloudfront:CreateInvalidation",
                     "s3:*",
                     "secretsmanager:*",
+                    "athena:*",
                 ]))
 
 
@@ -96,7 +97,7 @@ class ReportingStack(Stack):
             execution_role=ecs_role,
             task_role=ecs_role,
             family='pipeline-reporting',
-            memory_limit_mib= 2048,
+            memory_limit_mib= 8192,
             cpu=1024
         )
 
@@ -108,7 +109,7 @@ class ReportingStack(Stack):
             "pipeline-reporting-container",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
-            memory_limit_mib=2048,
+            memory_limit_mib=8192,
             cpu=1024
         )
 
