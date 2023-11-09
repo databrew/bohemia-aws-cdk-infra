@@ -75,6 +75,7 @@ class ReportingStack(Stack):
                     "cloudfront:CreateInvalidation",
                     "s3:*",
                     "secretsmanager:*",
+                    "athena:*",
                 ]))
 
 
@@ -109,7 +110,7 @@ class ReportingStack(Stack):
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
             memory_limit_mib=2048,
-            cpu=1024
+            cpu=8192
         )
 
         # ento pipeline dump
