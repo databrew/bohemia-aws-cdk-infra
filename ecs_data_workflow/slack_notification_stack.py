@@ -17,92 +17,93 @@ from constructs import Construct
 class SlackNotificationStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-
-        exec_role = iam.Role(
+        if(os.getenv("PIPELINE_STAGE") == 'production'):
+            exec_role = iam.Role(
             self, "SlackNotificationExecRole",
             assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),
-        )
-
-        # each role has a policy attached to it
-        exec_role.add_to_policy(
-            iam.PolicyStatement(
-                effect=iam.Effect.ALLOW,
-                resources=["*"],
-                actions=[
-                    "sqs:*",
-                    "kms:Decrypt",
-                    "ssm:*",
-                    "states:ListStateMachines",
-                    "states:ListActivities",
-                    "states:DescribeStateMachine",
-                    "states:DescribeStateMachineForExecution",
-                    "states:ListExecutions",
-                    "states:DescribeExecution",
-                    "states:GetExecutionHistory",
-                    "states:DescribeActivity",
-                    "logs:*"
-                ]))
-        
-        msg_queue = sqs.Queue(
-            self, 'SlackMessages'
-        )
-
-        sqs_event_source = event_sources.SqsEventSource(msg_queue)
-
-        # Lambda Function to capture step function results to SQS
-        sf_to_sqs_func  = lambda_alpha_.PythonFunction(
-            self,
-            "StepFuncToSQS",
-            entry = "./lambda/sf_to_sqs",
-            index = 'sf_to_sqs.py',
-            handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_11,
-            environment= {
-                'QUEUE_URL': msg_queue.queue_url
-            },  
-            role= exec_role
-        )
-
-        # Lambda Function for sending messages to Slack
-        send_to_slack_func = lambda_alpha_.PythonFunction(
-            self,
-            "SendToSlack",
-            entry = "./lambda/send_to_slack",
-            index = 'send_to_slack.py',
-            handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_11,
-            role = exec_role
-        )
-
-        state_machine_arns = [
-            cdk.Fn.import_value('odkbatch:arn'),
-            cdk.Fn.import_value('report:arn'),
-            cdk.Fn.import_value('odkbackup:arn'),
-            cdk.Fn.import_value('pipeline-gsheets:arn'),
-            cdk.Fn.import_value('metadata:arn')
-        ]
-        event_rule = events.Rule(
-            self, 
-            "SendToSlackRule",
-            event_pattern=events.EventPattern(
-                detail={
-                    "status": ["FAILED"],
-                    "stateMachineArn": state_machine_arns
-                },
-                detail_type=["Step Functions Execution Status Change"],
-                source=["aws.states"]
             )
-        )
 
-        # add new rule to target
-        event_rule.add_target(
-            targets.LambdaFunction(sf_to_sqs_func)
-        )
+            # each role has a policy attached to it
+            exec_role.add_to_policy(
+                iam.PolicyStatement(
+                    effect=iam.Effect.ALLOW,
+                    resources=["*"],
+                    actions=[
+                        "sqs:*",
+                        "kms:Decrypt",
+                        "ssm:*",
+                        "states:ListStateMachines",
+                        "states:ListActivities",
+                        "states:DescribeStateMachine",
+                        "states:DescribeStateMachineForExecution",
+                        "states:ListExecutions",
+                        "states:DescribeExecution",
+                        "states:GetExecutionHistory",
+                        "states:DescribeActivity",
+                        "logs:*"
+                    ]))
+            
+            msg_queue = sqs.Queue(
+                self, 'SlackMessages'
+            )
 
-        # send to slack event source
-        send_to_slack_func.add_event_source(
-            sqs_event_source
-        )
+            sqs_event_source = event_sources.SqsEventSource(msg_queue)
+
+            # Lambda Function to capture step function results to SQS
+            sf_to_sqs_func  = lambda_alpha_.PythonFunction(
+                self,
+                "StepFuncToSQS",
+                entry = "./lambda/sf_to_sqs",
+                index = 'sf_to_sqs.py',
+                handler = 'lambda_handler',
+                runtime=_lambda.Runtime.PYTHON_3_11,
+                environment= {
+                    'QUEUE_URL': msg_queue.queue_url
+                },  
+                role= exec_role
+            )
+
+            # Lambda Function for sending messages to Slack
+            send_to_slack_func = lambda_alpha_.PythonFunction(
+                self,
+                "SendToSlack",
+                entry = "./lambda/send_to_slack",
+                index = 'send_to_slack.py',
+                handler = 'lambda_handler',
+                runtime=_lambda.Runtime.PYTHON_3_11,
+                role = exec_role
+            )
+
+            state_machine_arns = [
+                cdk.Fn.import_value('odkbatch:arn'),
+                cdk.Fn.import_value('report:arn'),
+                cdk.Fn.import_value('odkbackup:arn'),
+                cdk.Fn.import_value('pipeline-gsheets:arn'),
+                cdk.Fn.import_value('metadata:arn')
+            ]
+            event_rule = events.Rule(
+                self, 
+                "SendToSlackRule",
+                event_pattern=events.EventPattern(
+                    detail={
+                        "status": ["FAILED"],
+                        "stateMachineArn": state_machine_arns
+                    },
+                    detail_type=["Step Functions Execution Status Change"],
+                    source=["aws.states"]
+                )
+            )
+
+            # add new rule to target
+            event_rule.add_target(
+                targets.LambdaFunction(sf_to_sqs_func)
+            )
+
+            # send to slack event source
+            send_to_slack_func.add_event_source(
+                sqs_event_source
+            )
+
 
 
 
