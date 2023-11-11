@@ -34,10 +34,8 @@ inner join clean_form.safety_repeat_individual sr
 on s.key = sr.parent_key
 group by 1
 ```
-
-You can also make joins cross databases:
-
 **Getting status of an extid in metadata**
+You can also make joins cross databases:
 ```sql
 select sr.extid, 
        ms.starting_safety_status
@@ -45,5 +43,18 @@ from clean_form.safety_repeat_individual sr
 inner join metadata.safety ms
 on sr.extid = ms.extid
 ```
+
+**Querying Historical Table**
+Athena can also query historical daily snapshots of tables. For instance:
+```sql
+select extid, 
+        most_recent_visit
+        starting_safety_status 
+from metadata.icf_hist
+where run_date in ('2023-11-05', '2023-11-06')
+```
+
+**Note**: This is currently only set on metadata, will require further scoping for `clean_form`
+
 
 
