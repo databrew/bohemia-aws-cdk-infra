@@ -15,6 +15,7 @@ This repository is the data infrastructure used for Bohemia project. It is desig
 4. [Contributing Guidelines](/docs/contb.md)
 5. [List of Key Terminology](/docs/terminology.md)
 6. [Indexed DockerHub Images](/docs/dockerhub_index.md)
+7. [Interactive Queries via Athena](/docs/athena.md)
 
 ## Product Feature Request
 Feature request will be done through [DataBrew Trello Board](https://trello.com/b/QS7U1jAJ/databrew)
