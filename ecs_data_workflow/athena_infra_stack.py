@@ -48,6 +48,26 @@ class AthenaInfraStack(Stack):
 
         )
 
+        exec_role = iam.Role(
+            self, "AthenaLambdaExecRole",
+            assumed_by=iam.ServicePrincipal('lambda.amazonaws.com'),
+        )
+        # each role has a policy attached to it
+        exec_role.add_to_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                resources=["*"],
+                actions=[
+                    "sqs:*",
+                    "kms:Decrypt",
+                    "ssm:*",
+                    "s3:*",
+                    "logs:*",
+                    "secretsmanager:*",
+                    "athena:*",
+                    "glue:*"
+                ]))
+
         statement_athena = iam.PolicyStatement(
             actions=[
                 "athena:GetQueryExecution",
@@ -67,6 +87,7 @@ class AthenaInfraStack(Stack):
             entry = "./lambda/athena",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
+            role = exec_role,
             runtime=_lambda.Runtime.PYTHON_3_10,
             timeout=cdk.Duration.minutes(15),
             memory_size=1769,
