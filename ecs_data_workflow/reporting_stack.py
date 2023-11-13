@@ -78,6 +78,24 @@ class ReportingStack(Stack):
                     "athena:*",
                     "glue:*"
                 ]))
+        
+        statement_athena = iam.PolicyStatement(
+            actions=[
+                "athena:GetQueryExecution",
+                "athena:StartQueryExecution",
+                "athena:GetQueryResults",
+                "s3:*"
+            ],
+            resources=[
+                f'arn:aws:athena:us-east-1:{self.account}:workgroup/primary'
+            ],
+        )
+
+        statement_glue = iam.PolicyStatement(
+            actions=["glue:GetTable", "glue:GetPartitions"],
+            resources=["*"],
+        )
+
 
 
         #######################################
@@ -113,6 +131,9 @@ class ReportingStack(Stack):
             memory_limit_mib=8192,
             cpu=1024
         )
+
+        task_definition.add_to_task_role_policy(statement_athena)
+        task_definition.add_to_task_role_policy(statement_glue)
 
         # ento pipeline dump
         reporting_pipeline = tasks.EcsRunTask(    
