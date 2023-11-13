@@ -38,7 +38,7 @@ class AthenaInfraStack(Stack):
         cfn_work_group = athena.CfnWorkGroup(
             self,
             "WorkGroupAthenaID",
-            "wg-athena",
+            name="wg-athena",
             description="Run athena queries for myapp",
             work_group_configuration=athena.CfnWorkGroup.WorkGroupConfigurationProperty(
                 result_configuration=athena.CfnWorkGroup.ResultConfigurationProperty(
