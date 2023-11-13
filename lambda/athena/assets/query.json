@@ -1,0 +1,14 @@
+{
+    "mapping":[
+        {   "name": "test query",
+            "prefix": "bohemia_prod/dwh/test/",
+            "query": "SELECT extid FROM metadata.safety"
+        },
+        {   
+        "name": "Query for summary monitoring icf metrics",
+        "prefix": "bohemia_prod/dwh/summary_monitoring_icf_metrics/",
+        "query": "with base_union_tbl as ( select cast(run_date as date) as run_date, 'Safety ICF Unresolved' as metric, 'Safety ICF' as source, extid, date_diff( 'day', cast(safety_verification_date as date), cast(run_date as date)) age from metadata.icf_hist where safety_icf_status = 'Rectification' union all select cast(run_date as date) as run_date, 'Efficacy ICF Unresolved' as metric, 'Efficacy ICF' as source, extid, date_diff( 'day', cast(efficacy_verification_date as date), cast(run_date as date)) age from metadata.icf_hist where efficacy_icf_status = 'Rectification' and efficacy_status is not null union all select cast(run_date as date) as run_date, 'Safety ICF Unverified' as metric, 'Safety ICF' as source, extid, date_diff( 'day', cast(safety_date as date), cast(run_date as date)) age from metadata.icf_hist where safety_icf_status is null and safety_date is not null union all select cast(run_date as date) as run_date, 'Efficacy ICF Unverified' as metric, 'Efficacy ICF' as source, extid, date_diff( 'day', cast(efficacy_date as date), cast(run_date as date)) age from metadata.icf_hist where efficacy_icf_status is null and efficacy_status is not null and efficacy_date is not null union all select cast(run_date as date) as run_date, 'Safety ICF Missing' as metric, 'Safety ICF' as source, extid, date_diff( 'day', cast(safety_date as date), cast(run_date as date) ) as age from metadata.icf_hist where safety_icf_status = 'Lost-Not Found' union all select cast(run_date as date) as run_date, 'Efficacy ICF Missing (Lost-Not Found)' as metric, 'Efficacy ICF' as source, extid, date_diff( 'day', cast(efficacy_date as date), cast(run_date as date) ) as age from metadata.icf_hist where efficacy_icf_status = 'Lost-Not Found' and efficacy_status is not null ) select run_date, metric, case when metric = 'Efficacy ICF Unverified' and age > 30 then 'Efficacy ICF Missing (Unverified >30 days)' when metric = 'Safety ICF Unverified' and age > 30 then 'Safety ICF Missing (Unverified >30 days)' when metric = 'Efficacy ICF Unverified' and age > 20 then 'Safety ICF Unverified >20days' when metric = 'Safety ICF Unverified' and age > 20 then 'Safety ICF Unverified >20days' when metric = 'Efficacy ICF Unresolved' and age > 20 then 'Safety ICF Unresolved >20days' when metric = 'Safety ICF Unresolved' and age > 20 then 'Safety ICF Unresolved >20days' else null end as metric_aging_group, source, extid, age from base_union_tbl"
+        }
+
+    ]
+}
