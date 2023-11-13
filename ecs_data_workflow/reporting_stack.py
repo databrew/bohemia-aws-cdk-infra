@@ -76,6 +76,7 @@ class ReportingStack(Stack):
                     "s3:*",
                     "secretsmanager:*",
                     "athena:*",
+                    "glue:*"
                 ]))
 
 
