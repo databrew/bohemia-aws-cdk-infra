@@ -1,0 +1,1 @@
+SELECT extid FROM metadata.icf
