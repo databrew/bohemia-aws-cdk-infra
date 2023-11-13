@@ -8,7 +8,7 @@ import json
 BUCKET_NAME=os.getenv('OUTPUT_LAKE_DB_BUCKET_NAME')
 
 def lambda_handler(event, context):
-    
+
     athena_client = boto3.client('athena')
 
     f = open('./assets/query.json')
@@ -23,13 +23,13 @@ def lambda_handler(event, context):
 
         # cleanpath
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(map['bucket'])
+        bucket = s3.Bucket(BUCKET_NAME)
         bucket.objects.filter(Prefix=f"{map['prefix']}").delete()
 
         # Execute the query
         response = athena_client.start_query_execution(
                 QueryString=run_query,
-                WorkGroup="primary",
+                WorkGroup="wg-athena",
         )
 
         # Get the execution ID of the query from the response
