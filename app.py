@@ -19,6 +19,7 @@ from ecs_data_workflow.odk_backup import OdkBackupStack
 from ecs_data_workflow.anomalies_gsheets_stack import AnomaliesGsheetsStack
 from ecs_data_workflow.metadata_update_stack import MetadataUpdateStack
 from ecs_data_workflow.slack_daily_updates_stack import SlackDailyUpdatesStack
+from ecs_data_workflow.athena_infra_stack import AthenaInfraStack
 
 # instantiate application
 app = cdk.App()
@@ -98,10 +99,18 @@ slack_daily_updates = SlackDailyUpdatesStack(
     env = cdk_default_environment,
 )
 
+athena_func = AthenaInfraStack(
+    app,
+     "AthenaInfraStack",
+    env = cdk_default_environment,
+)
+
 # serial deps to prevent locking between stack creation
 odk_batch.add_dependency(odk_backup)
 reporting.add_dependency(odk_batch)
 metadata.add_dependency(reporting)
+athena_func.add_dependency(metadata)
+
 slack_notification.add_dependency(metadata)
 
 
