@@ -32,8 +32,10 @@ class AthenaInfraStack(Stack):
         # Create bucket object
         if (os.getenv('PIPELINE_STAGE') == 'develop'):
             OUTPUT_BUCKET_NAME = 'develop-athena-query-results'
+            OUTPUT_LAKE_DB_BUCKET_NAME = 'databrew-testing-bohemia-lake-db'
         else:
             OUTPUT_BUCKET_NAME = 'athena-query-results'
+            OUTPUT_LAKE_DB_BUCKET_NAME = 'bohemia-lake-db'
 
         cfn_work_group = athena.CfnWorkGroup(
             self,
@@ -93,7 +95,7 @@ class AthenaInfraStack(Stack):
             memory_size=1769,
             ephemeral_storage_size=cdk.Size.mebibytes(10240),
             environment= {
-                'OUTPUT_BUCKET_NAME': OUTPUT_BUCKET_NAME
+                'OUTPUT_LAKE_DB_BUCKET_NAME': OUTPUT_LAKE_DB_BUCKET_NAME
             }
         )
 
