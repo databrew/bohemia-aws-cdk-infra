@@ -8,8 +8,7 @@ import json
 BUCKET_NAME=os.getenv('OUTPUT_LAKE_DB_BUCKET_NAME')
 
 def lambda_handler(event, context):
-
-    s3_client = boto3.client('s3')
+    
     athena_client = boto3.client('athena')
 
     f = open('./assets/query.json')
@@ -52,9 +51,3 @@ def lambda_handler(event, context):
 
         # Get the query results
         response = athena_client.get_query_results(QueryExecutionId=query_execution_id)
-        
-# TODO implement
-return {
-    'statusCode': 200,
-    'body': json.dumps()
-}
