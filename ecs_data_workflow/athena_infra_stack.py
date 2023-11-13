@@ -53,6 +53,7 @@ class AthenaInfraStack(Stack):
                 "athena:GetQueryExecution",
                 "athena:StartQueryExecution",
                 "athena:GetQueryResults",
+                "s3:*"
             ],
             resources=[
                 f'arn:aws:athena:us-east-1:{self.account}:workgroup/wg-athena'
