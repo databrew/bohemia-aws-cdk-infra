@@ -81,11 +81,11 @@ def lambda_handler(event, context):
         
     logger.info('Create text output ..')
     try:
-        output_string = tabulate(d, 
+        output_string = tabulate(d[d['submissions_p7d'] > 0], 
                                 headers = TARGET_COLS, 
                                 tablefmt = 'simple')
         
-        slack_table = {"text":f"*{today} Daily Form Updates:*\n"+"```\n" + output_string + "\n```"}
+        slack_table = {"text":f"*{today} Daily Form Updates (with submissions past 7 days):*\n"+"```\n" + output_string + "\n```"}
         info = json.dumps(slack_table)
     except Exception as err:
         logger.info(f"Unexpected {err=}, {type(err)=}")
