@@ -119,7 +119,7 @@ class ReportingMonitoringStack(Stack):
             execution_role=ecs_role,
             task_role=ecs_role,
             family='pipeline-reporting',
-            memory_limit_mib= 1024,
+            memory_limit_mib= 4096,
             cpu=1024
         )
 
@@ -131,7 +131,7 @@ class ReportingMonitoringStack(Stack):
             "pipeline-reporting-monitoring-container",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
-            memory_limit_mib= 1024,
+            memory_limit_mib= 4096,
             cpu=1024
         )
 
