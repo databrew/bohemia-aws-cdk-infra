@@ -124,7 +124,7 @@ class ReportingMonitoringStack(Stack):
         )
 
         # this is the dockerhub image that points to dockerhub
-        dockerhub_image = f'databrewllc/pipeline-reporting-monitoring:{docker_version}'
+        dockerhub_image = f'databrewllc/pipeline-reporting:{docker_version}'
 
         # attach the container to the task definition
         container_definition = task_definition.add_container(
