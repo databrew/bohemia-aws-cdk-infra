@@ -185,6 +185,6 @@ class ReportingMonitoringStack(Stack):
             )
 
         cdk.CfnOutput(self, 
-                      'ReportingStepFunction', 
+                      'ReportingMonitoringStepFunction', 
                       value=state_machine.state_machine_arn,
                       export_name='report:arn')
