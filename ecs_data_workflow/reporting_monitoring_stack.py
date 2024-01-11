@@ -79,7 +79,8 @@ class ReportingMonitoringStack(Stack):
                     "s3:*",
                     "secretsmanager:*",
                     "athena:*",
-                    "glue:*"
+                    "glue:*",
+                    "iam:*"
                 ]))
         
         statement_athena = iam.PolicyStatement(
@@ -118,7 +119,7 @@ class ReportingMonitoringStack(Stack):
             "pipeline-reporting-monitoring-task-definition",
             execution_role=ecs_role,
             task_role=ecs_role,
-            family='pipeline-reporting',
+            family='pipeline-reporting-monitoring',
             memory_limit_mib= 4096,
             cpu=1024
         )
