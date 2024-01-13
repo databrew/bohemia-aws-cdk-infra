@@ -15,6 +15,10 @@ class CloudFrontReportStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # create log bucket
+        log_bucket=s3.Bucket(self, "LogBucket",
+                             object_ownership=s3.ObjectOwnership.OBJECT_WRITER)
+
         # data-ops reporting bucket
         output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting"
         bucket = s3.Bucket(
@@ -27,7 +31,11 @@ class CloudFrontReportStack(Stack):
         distribution = cloudfront.Distribution(
             self, "CfDistribution",
             default_root_object= 'index.html',
-            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket))
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket)),
+            enable_logging =True,
+            log_bucket = log_bucket,
+            log_file_prefix="distribution-access-logs/monitoring-icf/",
+            log_includes_cookies=True
         )
 
         cdk.CfnOutput(self, "BucketArn", value=bucket.bucket_arn)
@@ -49,7 +57,11 @@ class CloudFrontReportStack(Stack):
         monitoring_icf_distribution = cloudfront.Distribution(
             self, "MonitoringICFDistribution",
             default_root_object= 'index.html',
-            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_icf_bucket))
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_icf_bucket)),
+            enable_logging =True,
+            log_bucket = log_bucket,
+            log_file_prefix="distribution-access-logs/monitoring-icf/",
+            log_includes_cookies=True
         )
 
         cdk.CfnOutput(self, "MonitoringICFBucketArn", value=monitoring_icf_bucket.bucket_arn)
