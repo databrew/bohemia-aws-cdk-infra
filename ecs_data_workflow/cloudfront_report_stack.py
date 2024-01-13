@@ -16,7 +16,7 @@ class CloudFrontReportStack(Stack):
         super().__init__(scope, id, **kwargs)
 
         # data-ops reporting bucket
-        bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting"
+        output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting"
         bucket = s3.Bucket(
             self, "CFBucket",
             bucket_name= output_bucket_name,
