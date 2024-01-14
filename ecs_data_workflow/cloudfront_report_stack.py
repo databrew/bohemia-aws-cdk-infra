@@ -97,4 +97,34 @@ class CloudFrontReportStack(Stack):
                       export_name='monitoring-pharmacy-cf-distribution-id')
         
 
+        # Monitoring Lab reporting bucket
+        output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting-lab-monitoring"
+        monitoring_lab_bucket = s3.Bucket(
+            self, "MonitoringLabBucket",
+            bucket_name= output_bucket_name,
+            versioned=True,
+            encryption=s3.BucketEncryption.S3_MANAGED
+        )
+
+        monitoring_lab_distribution = cloudfront.Distribution(
+            self, "MonitoringLabDistribution",
+            default_root_object= 'index.html',
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_icf_bucket)),
+            enable_logging =True,
+            log_bucket = log_bucket,
+            log_file_prefix="distribution-access-logs/monitoring-lab/",
+            log_includes_cookies=True
+        )
+
+        cdk.CfnOutput(self, "MonitoringLabBucketArn", value=monitoring_lab_bucket.bucket_arn)
+        cdk.CfnOutput(self, "MonitoringLabDistributionURL", value=monitoring_lab_distribution.distribution_domain_name)
+        cdk.CfnOutput(self, "MonitoringLabDistributionID", 
+                      value=monitoring_lab_distribution.distribution_id,
+                      export_name='monitoring-lab-cf-distribution-id')
+        
+
+
+
+        
+
 
