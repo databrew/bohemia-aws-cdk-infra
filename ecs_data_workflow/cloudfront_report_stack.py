@@ -34,7 +34,7 @@ class CloudFrontReportStack(Stack):
             default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(bucket)),
             enable_logging =True,
             log_bucket = log_bucket,
-            log_file_prefix="distribution-access-logs/monitoring-icf/",
+            log_file_prefix="distribution-access-logs/data-ops/",
             log_includes_cookies=True
         )
 
@@ -69,5 +69,32 @@ class CloudFrontReportStack(Stack):
         cdk.CfnOutput(self, "MonitoringICFDistributionID", 
                       value=monitoring_icf_distribution.distribution_id,
                       export_name='monitoring-icf-cf-distribution-id')
+        
+
+        # Monitoring Pharmacy reporting bucket
+        output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting-pharmacy-monitoring"
+        monitoring_pharmacy_bucket = s3.Bucket(
+            self, "MonitoringPharmacyBucket",
+            bucket_name= output_bucket_name,
+            versioned=True,
+            encryption=s3.BucketEncryption.S3_MANAGED
+        )
+
+        monitoring_pharmacy_distribution = cloudfront.Distribution(
+            self, "MonitoringPharmacyDistribution",
+            default_root_object= 'index.html',
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_icf_bucket)),
+            enable_logging =True,
+            log_bucket = log_bucket,
+            log_file_prefix="distribution-access-logs/monitoring-pharmacy/",
+            log_includes_cookies=True
+        )
+
+        cdk.CfnOutput(self, "MonitoringPharmacyBucketArn", value=monitoring_pharmacy_bucket.bucket_arn)
+        cdk.CfnOutput(self, "MonitoringPharmacyDistributionURL", value=monitoring_pharmacy_distribution.distribution_domain_name)
+        cdk.CfnOutput(self, "MonitoringPharmacyDistributionID", 
+                      value=monitoring_pharmacy_distribution.distribution_id,
+                      export_name='monitoring-pharmacy-cf-distribution-id')
+        
 
 
