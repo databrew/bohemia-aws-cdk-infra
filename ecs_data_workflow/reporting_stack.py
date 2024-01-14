@@ -105,7 +105,7 @@ class ReportingStack(Stack):
 
 
         #######################################
-        # Step 3a: Placeholder Create Ento Pipeline
+        # Step 3a: Placeholder Create Reporting Pipeline
         #######################################
         # create task definition: task definition is the 
         # set of guidelines being used for ECS to run Docker container
@@ -175,16 +175,9 @@ class ReportingStack(Stack):
 
         if (os.getenv('PIPELINE_STAGE') == 'production'):
             # add event rule to run data pipeline for work time at EAT
-            hourly_schedule = events.Rule(
+            schedule = events.Rule(
                 self, "ReportingPipelineTriggerWorkHoursSchedule",
-                schedule=events.Schedule.expression("cron(00 5-14 * * ? *)"),
-                targets=[targets.SfnStateMachine(state_machine)]
-            )
-
-            # add event rule to run at midnight EAT timezone
-            midnight_schedule = events.Rule(
-                self, "ReportingPipelineTriggerMidnightSchedule",
-                schedule=events.Schedule.expression("cron(00 21 * * ? *)"),
+                schedule=events.Schedule.rate(cdk.Duration.minutes(30)),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 

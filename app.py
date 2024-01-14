@@ -20,7 +20,6 @@ from ecs_data_workflow.anomalies_gsheets_stack import AnomaliesGsheetsStack
 from ecs_data_workflow.metadata_update_stack import MetadataUpdateStack
 from ecs_data_workflow.slack_daily_updates_stack import SlackDailyUpdatesStack
 from ecs_data_workflow.athena_infra_stack import AthenaInfraStack
-from ecs_data_workflow.reporting_monitoring_stack import ReportingMonitoringStack
 
 # instantiate application
 app = cdk.App()
@@ -60,12 +59,6 @@ reporting = ReportingStack(
     cluster = base_infra.cluster
 )
 
-# This is the stack used for kenya
-reporting_monitoring = ReportingMonitoringStack(
-    app, "ReportingMonitoringStack",
-    env = cdk_default_environment,
-    cluster = base_infra.cluster
-)
 
 # This is the stack used for kenya
 metadata = MetadataUpdateStack(
