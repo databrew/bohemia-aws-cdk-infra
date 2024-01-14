@@ -83,7 +83,7 @@ class CloudFrontReportStack(Stack):
         monitoring_pharmacy_distribution = cloudfront.Distribution(
             self, "MonitoringPharmacyDistribution",
             default_root_object= 'index.html',
-            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_icf_bucket)),
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_pharmacy_bucket)),
             enable_logging =True,
             log_bucket = log_bucket,
             log_file_prefix="distribution-access-logs/monitoring-pharmacy/",
@@ -109,7 +109,7 @@ class CloudFrontReportStack(Stack):
         monitoring_lab_distribution = cloudfront.Distribution(
             self, "MonitoringLabDistribution",
             default_root_object= 'index.html',
-            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_icf_bucket)),
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_lab_bucket)),
             enable_logging =True,
             log_bucket = log_bucket,
             log_file_prefix="distribution-access-logs/monitoring-lab/",
