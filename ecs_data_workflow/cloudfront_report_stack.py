@@ -123,6 +123,32 @@ class CloudFrontReportStack(Stack):
                       export_name='monitoring-lab-cf-distribution-id')
         
 
+        # CRA reporting bucket
+        output_bucket_name = os.getenv('BUCKET_PREFIX') + "bohemia-reporting-cra-monitoring"
+        monitoring_cra_bucket = s3.Bucket(
+            self, "MonitoringCRABucket",
+            bucket_name= output_bucket_name,
+            versioned=True,
+            encryption=s3.BucketEncryption.S3_MANAGED
+        )
+
+        monitoring_cra_distribution = cloudfront.Distribution(
+            self, "MonitoringCRADistribution",
+            default_root_object= 'index.html',
+            default_behavior=cloudfront.BehaviorOptions(origin=origins.S3Origin(monitoring_cra_bucket)),
+            enable_logging =True,
+            log_bucket = log_bucket,
+            log_file_prefix="distribution-access-logs/monitoring-cra/",
+            log_includes_cookies=True
+        )
+
+        cdk.CfnOutput(self, "MonitoringCRABucketArn", value=monitoring_cra_bucket.bucket_arn)
+        cdk.CfnOutput(self, "MonitoringCRADistributionURL", value=monitoring_cra_distribution.distribution_domain_name)
+        cdk.CfnOutput(self, "MonitoringCRADistributionID", 
+                      value=monitoring_cra_distribution.distribution_id,
+                      export_name='monitoring-cra-cf-distribution-id')
+        
+
 
 
         

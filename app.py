@@ -38,11 +38,12 @@ base_infra = BaseInfrastructureStack(
     env = cdk_default_environment
 )
 
-# This is the stack used for cloudfront
-cloudfront_report = CloudFrontReportStack(
-    app, "CloudFrontReportStack",
-    env = cdk_default_environment
-)
+# This is the stack used for cloudfront (ONLY IN PROD)
+if(os.getenv('PIPELINE_STAGE') == 'production'):
+    cloudfront_report = CloudFrontReportStack(
+        app, "CloudFrontReportStack",
+        env = cdk_default_environment
+    )
 
 # odk batch for dumping data every 10 mins
 odk_batch = OdkBatchStack(
