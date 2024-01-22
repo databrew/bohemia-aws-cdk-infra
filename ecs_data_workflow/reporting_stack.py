@@ -117,7 +117,7 @@ class ReportingStack(Stack):
             task_role=ecs_role,
             family='pipeline-reporting',
             memory_limit_mib= 8192,
-            cpu=1024
+            cpu=2048
         )
 
         # this is the dockerhub image that points to dockerhub
@@ -129,7 +129,7 @@ class ReportingStack(Stack):
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
             memory_limit_mib=8192,
-            cpu=1024
+            cpu= 2048
         )
 
         task_definition.add_to_task_role_policy(statement_athena)
