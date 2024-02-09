@@ -20,6 +20,7 @@ from ecs_data_workflow.anomalies_gsheets_stack import AnomaliesGsheetsStack
 from ecs_data_workflow.metadata_update_stack import MetadataUpdateStack
 from ecs_data_workflow.slack_daily_updates_stack import SlackDailyUpdatesStack
 from ecs_data_workflow.athena_infra_stack import AthenaInfraStack
+from ecs_data_workflow.analysis_stack import AnalysisStack
 
 # instantiate application
 app = cdk.App()
@@ -56,6 +57,14 @@ odk_batch = OdkBatchStack(
 # This is the stack used for kenya
 reporting = ReportingStack(
     app, "ReportingStack",
+    env = cdk_default_environment,
+    cluster = base_infra.cluster
+)
+
+
+# This is the stack used for kenya
+analysis = AnalysisStack(
+    app, "AnalysisStack",
     env = cdk_default_environment,
     cluster = base_infra.cluster
 )
@@ -110,6 +119,7 @@ athena_func = AthenaInfraStack(
 # serial deps to prevent locking between stack creation
 odk_batch.add_dependency(odk_backup)
 reporting.add_dependency(odk_batch)
+analysis.add_dependency(odk_batch)
 metadata.add_dependency(reporting)
 athena_func.add_dependency(metadata)
 
