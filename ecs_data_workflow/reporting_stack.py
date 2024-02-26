@@ -177,7 +177,7 @@ class ReportingStack(Stack):
             # add event rule to run data pipeline for work time at EAT
             schedule = events.Rule(
                 self, "ReportingPipelineTriggerWorkHoursSchedule",
-                schedule=events.Schedule.rate(cdk.Duration.minutes(30)),
+                schedule=events.Schedule.rate(cdk.Duration.hours(1)),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
