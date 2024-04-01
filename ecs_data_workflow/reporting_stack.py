@@ -5,7 +5,7 @@ to AWS. It will provision resources to
 run ECS orchestration using Step Functions
 and an EventBridge Scheduler
 
-Running w/ 4 CPU and 30 GB mem to accomodate Rnotebooks
+Running w/ 4 CPU and 30 GB mem to accomodate RMD
 
 @author: atediarjo@gmail.com
 @reviewer: joe@databrew.cc
