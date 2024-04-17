@@ -91,7 +91,7 @@ class MetadataUpdateStack(Stack):
             execution_role=ecs_role,
             task_role=ecs_role,
             family='pipeline-metadata',
-            memory_limit_mib= 2048,
+            memory_limit_mib= 5120,
             cpu=1024
         )
 
@@ -103,7 +103,7 @@ class MetadataUpdateStack(Stack):
             "pipeline-metadata-container",
             image=ecs.ContainerImage.from_registry(dockerhub_image),
             logging=ecs.LogDriver.aws_logs(stream_prefix="kenya-logs"),
-            memory_limit_mib=2048, 
+            memory_limit_mib=5120, 
             cpu=1024
         )
 
