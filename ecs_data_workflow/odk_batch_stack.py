@@ -176,7 +176,7 @@ class OdkBatchStack(Stack):
         fail_trigger = sfn.Fail(self, "Notify Failure in ODK Extraction!")
 
         # extract and clean
-        pipeline = cleaning_pipeline
+        pipeline = form_extraction.next(cleaning_pipeline)
         parallel = sfn.Parallel(
             self, 
             'ODK Batch Data Pull',
