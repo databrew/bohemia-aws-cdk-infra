@@ -54,7 +54,7 @@ class SlackDailyUpdatesStack(Stack):
             ),
         )
 
-        aws_sdk_pandas_layer_arn = aws_sdk_pandas_layer.get_att("Outputs.WranglerLayer39rn").to_string()
+        aws_sdk_pandas_layer_arn = aws_sdk_pandas_layer.get_att("Outputs.WranglerLayer39Arn").to_string()
         aws_sdk_pandas_layer_version = _lambda.LayerVersion.from_layer_version_arn(self, "awssdkpandas-layer-version", aws_sdk_pandas_layer_arn)
 
         # Lambda Function for sending messages to Slack
