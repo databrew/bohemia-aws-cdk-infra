@@ -49,12 +49,12 @@ class SlackDailyUpdatesStack(Stack):
             self,
             "awssdkpandas-layer",
             location=sam.CfnApplication.ApplicationLocationProperty(
-                application_id="arn:aws:serverlessrepo:useast1:336392948345:applications/awsdata-wrangler-layer-py3-9",
+                application_id="arn:aws:serverlessrepo:us-east-1:336392948345:applications/aws-sdk-pandas-layer-py3-8",
                 semantic_version="3.0.0",  # Get the latest version from https://serverlessrepo.aws.amazon.com/applications
             ),
         )
 
-        aws_sdk_pandas_layer_arn = aws_sdk_pandas_layer.get_att("Outputs.WranglerLayer39Arn").to_string()
+        aws_sdk_pandas_layer_arn = aws_sdk_pandas_layer.get_att("Outputs.WranglerLayer38Arn").to_string()
         aws_sdk_pandas_layer_version = _lambda.LayerVersion.from_layer_version_arn(self, "awssdkpandas-layer-version", aws_sdk_pandas_layer_arn)
 
         # Lambda Function for sending messages to Slack
@@ -64,7 +64,7 @@ class SlackDailyUpdatesStack(Stack):
             entry = "./lambda/send_form_submissions_to_slack",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_9,
+            runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
             memory_size=1769,
@@ -82,7 +82,7 @@ class SlackDailyUpdatesStack(Stack):
             entry = "./lambda/send_anomalies_to_slack",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_9,
+            runtime=_lambda.Runtime.PYTHON_3_8,
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
             memory_size=1769,
