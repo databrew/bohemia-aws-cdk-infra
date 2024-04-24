@@ -82,7 +82,7 @@ class SlackDailyUpdatesStack(Stack):
             entry = "./lambda/send_anomalies_to_slack",
             index = 'lambda_function.py',
             handler = 'lambda_handler',
-            runtime=_lambda.Runtime.PYTHON_3_8,
+            runtime=_lambda.Runtime.PYTHON_3_9,
             role = exec_role,
             timeout=cdk.Duration.minutes(15),
             memory_size=1769,
