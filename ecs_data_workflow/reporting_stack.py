@@ -118,8 +118,8 @@ class ReportingStack(Stack):
             execution_role=ecs_role,
             task_role=ecs_role,
             family='pipeline-reporting',
-            memory_limit_mib= 30720,
-            cpu=4096
+            memory_limit_mib= 122880,
+            cpu=61440
         )
 
         # this is the dockerhub image that points to dockerhub
@@ -179,7 +179,7 @@ class ReportingStack(Stack):
             # add event rule to run data pipeline for work time at EAT
             schedule = events.Rule(
                 self, "ReportingPipelineTriggerWorkHoursSchedule",
-                schedule=events.Schedule.rate(cdk.Duration.hours(1)),
+                schedule=events.Schedule.rate(cdk.Duration.hours(12)),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
 
