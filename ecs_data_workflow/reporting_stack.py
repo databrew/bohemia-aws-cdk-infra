@@ -152,6 +152,11 @@ class ReportingStack(Stack):
             launch_target=tasks.EcsFargateLaunchTarget(platform_version=ecs.FargatePlatformVersion.LATEST)
         )
 
+        reporting_pipeline.add_retry(
+            max_attempts=3,
+            interval=Duration.seconds(10),
+        )
+
         #######################################
         # Step Functions
         #######################################
@@ -165,11 +170,6 @@ class ReportingStack(Stack):
         reporting_pipeline.add_catch(reporting_fail_trigger)
 
         parallel = (reporting_pipeline).next(success_trigger)
-
-        parallel.add_retry(
-            max_attempts=3,
-            interval=Duration.seconds(10),
-        )
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(
