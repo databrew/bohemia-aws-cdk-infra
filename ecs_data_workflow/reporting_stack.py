@@ -14,7 +14,7 @@ Running w/ 4 CPU and 30 GB mem to accomodate RMD creation
 import os
 import aws_cdk as cdk
 from aws_cdk import (
-    # Duration,
+    Duration,
     Stack,
     aws_ec2 as ec2, aws_ecs as ecs,
     aws_ecs_patterns as ecs_patterns,
@@ -165,6 +165,11 @@ class ReportingStack(Stack):
         reporting_pipeline.add_catch(reporting_fail_trigger)
 
         parallel = (reporting_pipeline).next(success_trigger)
+
+        parallel.add_retry(
+            max_attempts=3,
+            interval=Duration.seconds(10),
+        )
 
         # consolidate into state machines
         state_machine = sfn.StateMachine(

@@ -190,7 +190,7 @@ class OdkBatchStack(Stack):
         # retry if failed
         parallel.add_retry(
             max_attempts=3,
-            interval=Duration.seconds(5),
+            interval=Duration.seconds(10),
         )
         parallel.add_catch(fail_trigger)
         parallel.next(success_trigger)
