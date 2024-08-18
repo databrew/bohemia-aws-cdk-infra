@@ -209,7 +209,7 @@ class OdkBatchStack(Stack):
                     # add event rule to run data pipeline for work time at EAT
             update_schedule = events.Rule(
                 self, "ODKBatchRefreshRate",
-                schedule=events.Schedule.expression("rate(2 hours)"),
+                schedule=events.Schedule.expression("rate(12 hours)"),
                 targets=[targets.SfnStateMachine(state_machine)]
             )
         else:
